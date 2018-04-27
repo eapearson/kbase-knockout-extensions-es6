@@ -1,8 +1,7 @@
 define([
     'knockout',
     'moment',
-    'uuid',
-    './main'
+    'uuid'
 ], function (
     ko,
     moment,
