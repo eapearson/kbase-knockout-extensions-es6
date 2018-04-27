@@ -1,0 +1,30 @@
+{
+    "name": "kbase-ko-components-js",
+    "description": "KBase Common Knockout Components",
+    "main": "src/**/*",
+    "moduleType": "amd-library",
+    "moduleRoot": "kb_ko",
+    "authors": [
+      "Erik Pearson <eapearson@lbl.gov>"
+    ],
+    "license": "SEE LICENSE IN LICENSE",
+    "homepage": "https://github.com/kbase/kbase-ko-components-js",
+    "ignore": [
+      "**/.*",
+      "node_modules",
+      "bower_components",
+      "test"
+    ],
+    "dependencies": {
+      "kbase-common-js": "^2.15.2",
+      "knockout": "^3.5.0-rc",
+      "knockout-arraytransforms": "^2.1.1",
+      "knockout-switch-case": "^2.1.0",
+      "knockout-validation": "^2.0.3",
+      "marked": "^0.3.12",
+      "moment": "^2.20.1",
+      "numeral": "^2.0.4",
+      "pure-uuid": "eapearson/pure-uuid#1.1.1"
+    }
+  }
+  
