@@ -149,38 +149,61 @@ define([
         //if (elapsedAbs < 60 * 60 * 24 * 7) {
 
         let measures = [];
+        let remaining;
 
         if (elapsedAbs === 0) {
             return 'now';
         } else if (elapsedAbs < 60) { 
-            // var measure = elapsed;
             measures.push([elapsedAbs, 'second']);
-            // measureAbs = elapsedAbs;
-            // unit = 'second';
         } else if (elapsedAbs < 60 * 60) {
-            // var measure = Math.round(elapsed / 60);
-            measureAbs = Math.round(elapsedAbs / 60);
-            if (measureAbs <= 5) {
-                // at 5 minutes we also show the seconds
-            }
-            // unit = 'minute';
+            measureAbs = Math.floor(elapsedAbs / 60);
             measures.push([measureAbs, 'minute']);
+            remaining = elapsedAbs - (measureAbs * 60);
+            if (remaining > 0) {
+                measures.push([remaining, 'second']);
+            }
         } else if (elapsedAbs < 60 * 60 * 24) { 
-            // var measure = Math.round(elapsed / 3600);
-            measureAbs = Math.round(elapsedAbs / 3600);
-            // unit = 'hour';
-            measures.push([measureAbs, 'hour']);
+            measureAbs = Math.floor(elapsedAbs / 3600);
+            // measures.push([measureAbs, 'hour']);
+            // remaining = elapsedAbs - (measureAbs * 3600);
+            // if (remaining > 0) {
+            //     measures.push([remaining, 'minute']);
+            // }
+            let remainingSeconds = elapsedAbs - (measureAbs * 3600);
+            let remainingMinutes = Math.round(remainingSeconds/60);
+            if (remainingMinutes === 60) {
+                // if we round up to 24 hours, just considering this another
+                // day and don't show hours.
+                measureAbs += 1;
+                measures.push([measureAbs, 'hour']);
+            } else {
+                // otherwise, do show the hours
+                measures.push([measureAbs, 'hour']);
+                if (remainingMinutes > 0) {
+                    // unless it rounds down to no hours.
+                    measures.push([remainingMinutes, 'minute']);
+                }
+            }
         } else if (elapsedAbs < 60 * 60 * 24 * 7) {
-            // var measure = Math.round(elapsed / (3600 * 24));
-            measureAbs = Math.round(elapsedAbs / (3600 * 24));
-            // unit = 'day';
-            measures.push([measureAbs, 'day']);
+            measureAbs = Math.floor(elapsedAbs / (3600 * 24));
+            let remainingSeconds = elapsedAbs - (measureAbs * 3600 * 24);
+            let remainingHours = Math.round(remainingSeconds/3600);
+            if (remainingHours === 24) {
+                // if we round up to 24 hours, just considering this another
+                // day and don't show hours.
+                measureAbs += 1;
+                measures.push([measureAbs, 'day']);
+            } else {
+                // otherwise, do show the hours
+                measures.push([measureAbs, 'day']);
+                if (remainingHours > 0) {
+                    // unless it rounds down to no hours.
+                    measures.push([remainingHours, 'hour']);
+                }
+            }
         } else {
-            // var measure = Math.round(elapsed / (3600 * 24));
-            measureAbs = Math.round(elapsedAbs / (3600 * 24));
-            // unit = 'day';
+            measureAbs = Math.floor(elapsedAbs / (3600 * 24));
             measures.push([measureAbs, 'day']);
-
         }
 
         return [
@@ -190,11 +213,93 @@ define([
                     unit += 's';
                 }
                 return [measure, unit].join(' ');
-            }),
+            }).join(', '),
             (suffix ? ' ' + suffix : '')
         ].join('');
     }
 
+    // function niceRelativeTimeRange_original(startDate, endDate, now) {
+    //     let nowTime = now || new Date.now();
+    //     let date;
+    //     let prefix, suffix;
+    //     if (startDate.getTime() > nowTime) {
+    //         prefix = 'in';
+    //         date = startDate;
+    //     } else if (endDate === null) {
+    //         return 'happening now';
+    //     } else if (endDate.getTime() < nowTime) {
+    //         prefix = 'ended';
+    //         suffix = 'ago';
+    //         date = endDate;
+    //     } else {
+    //         prefix = 'happening now, ending in ';
+    //         date = endDate;
+    //     }
+
+    //     // today/tomorrow
+    //     // let startDay = startDate.getDay();
+
+    //     // let todayBegin = new Date(now.getFullYear(), now.getMonth(), now.getDay(), 0, 0, 0, 0);
+    //     // let tomorrowBegin = todayBegin
+    //     // let nowDate = now.getDay();
+    //     // if (startDay)
+
+                        
+    //     // let shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    //     let elapsed = Math.round((nowTime - date.getTime()) / 1000);
+    //     let elapsedAbs = Math.abs(elapsed);
+    //     let measureAbs;
+
+    //     // Within the last 7 days...
+    //     //if (elapsedAbs < 60 * 60 * 24 * 7) {
+
+    //     let measures = [];
+
+    //     if (elapsedAbs === 0) {
+    //         return 'now';
+    //     } else if (elapsedAbs < 60) { 
+    //         // var measure = elapsed;
+    //         measures.push([elapsedAbs, 'second']);
+    //         // measureAbs = elapsedAbs;
+    //         // unit = 'second';
+    //     } else if (elapsedAbs < 60 * 60) {
+    //         // var measure = Math.round(elapsed / 60);
+    //         measureAbs = Math.round(elapsedAbs / 60);
+    //         if (measureAbs <= 5) {
+    //             // at 5 minutes we also show the seconds
+    //         }
+    //         // unit = 'minute';
+    //         measures.push([measureAbs, 'minute']);
+    //     } else if (elapsedAbs < 60 * 60 * 24) { 
+    //         // var measure = Math.round(elapsed / 3600);
+    //         measureAbs = Math.round(elapsedAbs / 3600);
+    //         // unit = 'hour';
+    //         measures.push([measureAbs, 'hour']);
+    //     } else if (elapsedAbs < 60 * 60 * 24 * 7) {
+    //         // var measure = Math.round(elapsed / (3600 * 24));
+    //         measureAbs = Math.round(elapsedAbs / (3600 * 24));
+    //         // unit = 'day';
+    //         measures.push([measureAbs, 'day']);
+    //     } else {
+    //         // var measure = Math.round(elapsed / (3600 * 24));
+    //         measureAbs = Math.round(elapsedAbs / (3600 * 24));
+    //         // unit = 'day';
+    //         measures.push([measureAbs, 'day']);
+
+    //     }
+
+    //     return [
+    //         (prefix ? prefix + ' ' : ''), 
+    //         measures.map(([measure, unit]) => {
+    //             if (measure !== 1) {
+    //                 unit += 's';
+    //             }
+    //             return [measure, unit].join(' ');
+    //         }),
+    //         (suffix ? ' ' + suffix : '')
+    //     ].join('');
+    // }
     function niceTime(date) {
         var time;
         var minutes = date.getMinutes();
