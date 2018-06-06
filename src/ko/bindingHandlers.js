@@ -437,11 +437,12 @@ define([
                     }
                     valueUnwrapped = defaultValue;
                 }
-            
+
                 if (valueUnwrapped) {
                     formatted = 'true';
+                } else {
+                    formatted = 'false';
                 }
-                formatted = 'false';
 
                 break;
             case 'text':
