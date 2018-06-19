@@ -20,6 +20,17 @@ define([
         }
     };
 
+    ko.bindingHandlers.markdown = {
+        init: function (element, valueAccessor) {
+            let value = ko.unwrap(valueAccessor());
+            element.innerHTML = marked(value);
+        },
+        update: function (element, valueAccessor) {
+            let value = ko.unwrap(valueAccessor());
+            element.innerHTML = marked(value);
+        }
+    };
+
     ko.bindingHandlers.numberText = {
         update: function (element, valueAccessor, allBindings) {
             var value = valueAccessor();
@@ -364,6 +375,8 @@ define([
             focusser.setElement(element);
         }
     };
+
+   
 
     ko.bindingHandlers.typedText = {
         update: function (element, valueAccessor) {
