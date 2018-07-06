@@ -1,0 +1,773 @@
+define([
+    'knockout',
+    '../registry',
+    '../lib/generators',
+    '../lib/viewModelBase',
+    'kb_common/html'
+], function (
+    ko,
+    reg,
+    gen,
+    ViewModelBase,
+    html
+) {
+    'use strict';
+
+    var t = html.tag,
+        div = t('div'),
+        span = t('span'),
+        p = t('p'),
+        a = t('a');
+
+    var styles = html.makeStyles({
+        component: {
+            flex: '1 1 0px',
+            display: 'flex',
+            flexDirection: 'column'
+        },
+        header: {
+            flex: '0 0 50px'
+        },
+        body: {
+            flex: '1 1 0px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-start',
+            minWidth: '40em'
+        },
+        headerRow: {
+            flex: '0 0 35px',
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            fontWeight: 'bold',
+            color: 'gray'
+        },
+        tableBody: {
+            css: {
+                flex: '1 1 0px',
+                display: 'flex',
+                flexDirection: 'column'
+            }
+        },
+        itemRows: {
+            css: {
+                flex: '1 1 0px',
+                display: 'flex',
+                flexDirection: 'column',
+                position: 'relative'
+            }
+        },
+        itemRow: {
+            css: {
+                flex: '0 0 35px',
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center'
+            },
+            pseudo: {
+                hover: {
+                    backgroundColor: '#CCC',
+                    cursor: 'pointer'
+                }
+            }
+        },
+        itemRowActive: {
+            backgroundColor: '#DDD'
+        },
+        searchLink: {
+            css: {
+                textDecoration: 'underline'
+            },
+            pseudo: {
+                hover: {
+                    textDecoration: 'underline',
+                    backgroundColor: '#EEE',
+                    cursor: 'pointer'
+                }
+            }
+        },
+        cell: {
+            flex: '0 0 0px',
+            overflow: 'hidden',
+            whiteSpace: 'nowrap',
+            // border: '1px silver solid',
+            borderBottom: '1px #DDD solid',
+            height: '35px',
+            padding: '4px 4px',
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center'
+        },
+        headerCell: {
+            css: {
+                flex: '0 0 0px',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
+                // border: '1px silver solid',
+                borderTop: '1px #DDD solid',
+                borderBottom: '1px #DDD solid',
+                height: '35px',
+                padding: '4px',
+                textAlign: 'left',
+                display: 'flex',
+                alignItems: 'center'
+            }            
+        },        
+        innerCell: {
+            flex: '1 1 0px',
+            overflow: 'hidden',
+            whiteSpace: 'nowrap',
+            textOverflow: 'ellipsis'
+        },
+        innerSortCell: {
+            flex: '1 1 0px',
+            // overflow: 'hidden'
+            whiteSpace: 'nowrap',
+            display: 'flex',
+            flexDirection: 'row',
+            overflow: 'hidden'
+        },
+        sortableCell: {
+            css: {
+                cursor: 'pointer',
+            },
+            pseudo: {
+                hover: {
+                    backgroundColor: 'rgba(200,200,200,0.8)'
+                }
+            }
+        },
+        sortedCell: {
+            backgroundColor: 'rgba(200,200,200,0.5)'
+        },
+        sortIndicator: {
+            display: 'inline'
+        },
+        sectionHeader: {
+            padding: '4px',
+            fontWeight: 'bold',
+            color: '#FFF',
+            backgroundColor: '#888'
+        },
+        selected: {
+            backgroundColor: '#CCC'
+        },
+        private: {
+            backgroundColor: 'green'
+        },
+        miniButton: {
+            css: {
+                padding: '2px',
+                border: '2px transparent solid',
+                cursor: 'pointer'
+            },
+            pseudo: {
+                hover: {
+                    border: '2px white solid'
+                },
+                active: {
+                    border: '2px white solid',
+                    backgroundColor: '#555',
+                    color: '#FFF'
+                }
+            }
+        }
+    });
+
+    class ViewModel extends ViewModelBase {
+        constructor(params, componentInfo) {
+            super(params);
+
+            this.componentInfo = componentInfo;
+            this.slowLoadingThreshold = 300;
+        
+            this.table = params.table;
+            this.rows = this.table.rows;
+            this.columns = this.table.columns;
+            this.state = this.table.state;
+            this.actions = this.table.actions;
+            this.env = this.table.env;
+
+            // calculate widths...
+            this.totalWidth = this.columns.reduce((tw, column) => {
+                return tw + column.width;
+            }, 0);
+            this.columns.forEach((column) => {
+                var width = String(100 * column.width / this.totalWidth) + '%';
+
+                // Header column style
+                var s = column.headerStyle || {};
+                s.flexBasis = width;
+                column.headerStyle = s;
+
+                // Row column style
+                s = column.rowStyle || {};
+                s.flexBasis = width;
+                column.rowStyle = s;
+            });
+
+            this.sortColumn = ko.observable('timestamp');
+
+            this.sortDirection = ko.observable('descending');
+
+            // AUTO SIZING
+
+            // we hinge upon the height, which is updated when we start and when the ...
+            this.height = ko.observable();
+
+            this.rowHeight = 35;
+
+            this.resizerTimeout = 200;
+            this.resizerTimer = null;
+
+            this.resizer = () => {
+                if (this.resizerTimer) {
+                    return;
+                }
+                this.resizerTimer = window.setTimeout(() => {
+                    this.resizerTimer = null;
+                    this.height(this.calcHeight());
+                }, this.resizerTimeout);
+            };
+
+            this.resizeListener = window.addEventListener('resize', this.resizer, false);
+
+            this.subscribe(this.height, (newValue) => {
+                if (!newValue) {
+                    this.table.pageSize(null);
+                }            
+                
+                const rowCount = Math.floor(newValue / this.rowHeight);
+    
+                this.table.pageSize(rowCount);
+            });
+
+            this.doRowAction = null;
+            if (this.table.rowAction) {
+                this.doRowAction = (data) => {
+                    if (this.table.rowAction) {
+                        this.table.rowAction(data);
+                    } else {
+                        console.warn('No row action...', this.table, data);
+                    }
+                };
+            } else {
+                this.doRowAction = null;
+            }
+
+            this.isLoadingSlowly = ko.observable(false);
+
+            this.loadingTimer = null;
+
+
+            this.subscribe(this.table.isLoading, (loading) => {
+                if (loading) {
+                    this.timeLoading();
+                } else {
+                    this.cancelTimeLoading();
+                }
+            });
+
+
+            // Calculate the height immediately upon component load
+            this.height(this.calcHeight());
+        }
+
+        /*
+            Sorting is managed here in the table, and we 
+            communicate changes via the table.sortColumn() call.
+             We don't know whether the implementation supports
+             single or multiple column sorts, etc. 
+             In turn, the sorted property may be set to asending,
+             descending, or falsy.
+        */
+        doSort(column) {
+            this.table.sortBy(column);
+        }
+
+        calcHeight() {
+            return this.componentInfo.element.querySelector('.' + styles.classes.tableBody).clientHeight;
+        }
+
+        doOpenUrl(data) {
+            if (!data.url) {
+                console.warn('No url for this column, won\'t open it');
+                return;
+            }
+            window.open(data.url, '_blank');
+        }
+
+        openLink(url) {
+            if (url) {
+                window.open(url, '_blank');
+            }
+        }
+
+        timeLoading() {
+            this.loadingTimer = window.setTimeout(() => {
+                if (this.table.isLoading()) {
+                    this.isLoadingSlowly(true);
+                }
+                this.loadingTimer = null;
+            }, this.slowLoadingThreshold);
+        }
+
+        cancelTimeLoading() {
+            if (this.loadingTimer) {
+                window.clearTimeout(this.loadingTimer);
+                this.loadingTimer = null;
+            }
+            this.isLoadingSlowly(false);
+        }
+
+        dispose() {
+            super.dispose();
+            if (this.resizeListener) {
+                window.removeEventListener('resize', this.resizer, false);
+            }
+        }
+        
+    }
+   
+
+    function obj(aa) {
+        return aa.reduce(function (acc, prop) {
+            acc[prop[0]] = prop[1];
+            return acc;
+        }, {});
+    }
+
+    function buildResultsHeader() {
+        return  div({
+            class: styles.classes.headerRow,
+            dataBind: {
+                foreach: {
+                    data: '$component.columns',
+                    as: '"column"'
+                }
+            }
+        }, div({
+            dataBind: {
+                style: 'column.headerStyle',
+                css: obj([
+                    [styles.classes.sortableCell, 'column.sort ? true : false'],
+                    [styles.classes.sortedCell, 'column.sort && column.sort.active() ? true : false']
+                ]),
+                event: {
+                    click: 'column.sort ? function () {$component.doSort(column);} : false'
+                }
+            },
+            class: [styles.classes.headerCell]
+        }, [
+            gen.if('sort', 
+                div({
+                    class: [styles.classes.innerSortCell]
+                }, [
+                    // header label
+                    div({
+                        class: [styles.classes.innerCell]
+                    }, [
+                        span({
+                            dataBind: {
+                                text: 'column.label'
+                            },
+                            style: {
+                                
+                                marginRight: '2px'
+                            },
+                        })
+                    ]),
+
+                    // sort indicator
+                    div({
+                        class: [styles.classes.sortIndicator]
+                    }, [
+                        gen.if('!column.sort.active()', 
+                            span({
+                                class: 'fa fa-sort'
+                            }),
+                            gen.if('column.sort.direction() === "descending"', 
+                                span({
+                                    class: 'fa fa-sort-desc'
+                                }),
+                                gen.if('column.sort.direction() === "ascending"', 
+                                    span({
+                                        class: 'fa fa-sort-asc'
+                                    }))))
+                    ])
+                ]),
+                div({
+                    class: [styles.classes.innerCell]
+                }, [
+                    span({
+                        dataBind: {
+                            text: 'column.label'
+                        }
+                    }),
+                ])),
+        ]));
+    }
+
+    function buildColValue() {
+        return gen.if('row[column.name].action', 
+            span({
+                dataBind: {
+                    typedText: {
+                        value: 'row[column.name].value',
+                        type: 'column.type',
+                        format: 'column.format',
+                        click: '$component[rowl[column.name].action]'
+                    },
+                    attr: {
+                        title: 'row[column.name].info'
+                    }
+                }
+            }),
+            gen.if('row[column.name].url', 
+                a({
+                    dataBind: {
+                        typedText: {
+                            value: 'row[column.name].value',
+                            type: 'column.type',
+                            format: 'column.format'
+                        },
+                        attr: {
+                            title: 'row[column.name].info'
+                        },
+                        click: 'function () {$component.doOpenUrl(row[column.name]);}',
+                        clickBubble: 'false'
+                    }
+                }),            
+                span({
+                    dataBind: {
+                        typedText: {
+                            value: 'row[column.name].value',
+                            type: 'column.type',
+                            format: 'column.format'
+                        },
+                        attr: {
+                            title: 'row[column.name].info'
+                        }
+                    }
+                })));
+    }
+
+    function  buildActionFnCol() {
+        return gen.if('row[column.name]', 
+            a({
+                dataBind: {
+                    typedText: {
+                        value: 'row[column.name].value',
+                        type: 'column.type',
+                        format: 'column.format'
+                    },
+                    click: 'function () {column.action.fn(row[column.name], row);}',
+                    clickBubble: false,
+                    attr: {
+                        title: 'row[column.name].info'
+                    }
+                },
+                style: {
+                    cursor: 'pointer'
+                }
+            }),
+            gen.if('column.action.label', 
+                a({
+                    dataBind: {
+                        text: 'column.action.label',
+                        // click: 'function () {column.action(row);}',
+                        // clickBubble: false
+                    },
+                    style: {
+                        cursor: 'pointer'
+                    }
+                }),
+                a({
+                    dataBind: {
+                        css: 'column.action.icon',
+                        click: 'function () {column.action.fn(row);}',
+                        clickBubble: false,
+                        // attr: {
+                        //     title: 'row[column.name].info'
+                        // }
+                    },
+                    style: {
+                        cursor: 'pointer'
+                    },
+                    class: 'fa'
+                })));
+    }
+
+    function  buildActionNameCol() {
+        return gen.if('row[column.name]', 
+            a({
+                dataBind: {
+                    typedText: {
+                        value: 'row[column.name].value',
+                        type: 'column.type',
+                        format: 'column.format'
+                    },
+                    click: 'function () {$component.actions[column.action.name]({row: row, col: row[column.name]});}',
+                    clickBubble: false,
+                    attr: {
+                        title: 'row[column.name].info'
+                    }
+                },
+                style: {
+                    cursor: 'pointer'
+                }
+            }),
+            gen.if('column.action.label', 
+                a({
+                    dataBind: {
+                        text: 'column.action.label',
+                        click: 'function () {$component.actions[column.action.name]({row: row, col: null});}',
+                        clickBubble: false,
+                    },
+                    style: {
+                        cursor: 'pointer'
+                    }
+                }),
+                a({
+                    dataBind: {
+                        css: 'column.action.icon',
+                        click: 'function () {$component.actions[column.action.name]({row: row, col: null});}',
+                        clickBubble: false,
+                    },
+                    style: {
+                        cursor: 'pointer'
+                    },
+                    class: 'fa'
+                })));
+    }
+
+    function  buildActionLinkCol() {
+        return gen.if('row[column.name]', 
+            gen.if('row[column.name].url', 
+                a({
+                    dataBind: {
+                        typedText: {
+                            value: 'row[column.name].value',
+                            type: 'column.type',
+                            format: 'column.format'
+                        },
+                        click: 'function () {$component.openLink(row[column.name].url);}',
+                        // click: 'function () {column.action.fn(row[column.name], row);}',
+                        clickBubble: false,
+                        attr: {
+                            title: 'row[column.name].info'
+                        }
+                    },
+                    style: {
+                        cursor: 'pointer'
+                    }
+                }),
+                span({
+                    dataBind: {
+                        typedText: {
+                            value: 'row[column.name].value',
+                            type: 'column.type',
+                            format: 'column.format'
+                        },
+                        attr: {
+                            title: 'row[column.name].info'
+                        }
+                    }
+                })),
+            // Case of a column definition containing a link, but no corresponding
+            // row value. E.g. a per-row action.
+
+            // NO column value, show the column action label or icon
+            gen.if('column.action.label', 
+                a({
+                    dataBind: {
+                        text: 'column.action.label',
+                        // click: 'function () {column.action(row);}',
+                        // clickBubble: false
+                    },
+                    style: {
+                        cursor: 'pointer'
+                    }
+                }),
+                a({
+                    dataBind: {
+                        css: 'column.action.icon',
+                        click: 'function () {$module.openLink(row[column.name], row);}',
+                        clickBubble: false,
+                        // attr: {
+                        //     title: 'row[column.name].info'
+                        // }
+                    },
+                    style: {
+                        cursor: 'pointer'
+                    },
+                    class: 'fa'
+                })));
+    }
+
+    function buildResultsRows() {
+        var rowClass = {};
+        return div({
+            dataBind: {
+                foreach: {
+                    data: 'rows',
+                    as: '"row"'
+                }
+            },
+            class: styles.classes.itemRows
+        }, [            
+            div({
+                dataBind: {
+                    foreach: {
+                        data: '$component.columns',
+                        as: '"column"'
+                    },
+                    css: rowClass,
+                    click: '$component.doRowAction'
+                },
+                class: styles.classes.itemRow
+            }, [
+                div({
+                    dataBind: {
+                        style: 'column.rowStyle'
+                    },
+                    class: [styles.classes.cell]
+                },  div({
+                    class: [styles.classes.innerCell]
+                }, [
+                    // ACTION COLUMN
+                    gen.if('column.action', [
+                        gen.if('column.action.fn', buildActionFnCol()),
+                        gen.if('column.action.name', buildActionNameCol()),
+                        gen.if('column.action.link', buildActionLinkCol())
+                    ], 
+                    gen.if('column.component', 
+                        div({
+                            dataBind: {
+                                component: {
+                                    name: 'column.component',
+                                    params: {
+                                        field: 'row[column.name]',
+                                        row: 'row',
+                                        env: '$component.env'
+                                    }
+                                }
+                                // text: 'column.component'
+                            },
+                            style: {
+                                flex: '1 1 0px',
+                                display: 'flex',
+                                flexDirection: 'column'
+                            }
+                        }),
+                        gen.if('row[column.name]', buildColValue())))
+                ]))
+            ])
+        ]);
+    }
+
+    function buildLoading() {
+        gen.if('$component.isLoading', 
+            div({
+                style: {
+                    position: 'absolute',
+                    left: '0',
+                    right: '0',
+                    top: '0',
+                    bottom: '0',
+                    backgroundColor: 'rgba(255, 255, 255, 0.5)',                    
+                    fontSize: '300%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    zIndex: '5'
+                }
+            }, [
+                div({
+                    style: {
+                        flex: '1 1 0px',
+                        display: 'flex',
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                    }
+                }, [
+                    ko.if('$component.isLoadingSlowly', html.loading())
+                ])
+            ]));
+    }
+
+    function buildNoActiveSearch() {
+        return div(
+            gen.if('$component.isLoading',
+                p('Running your search! Going from Zero to Hero ... ' + html.loading()),
+                p('NO ACTIVE SEARCH - PLACEHOLDER')));
+    }
+
+    function buildNoResults() {
+        return div(
+            gen.if('$component.isLoading', 
+                p('Running your search! Going from Zero to Hero ... ' + html.loading()),
+                p('NO RESULTS FROM SEARCH - PLACEHOLDER')));
+    }
+
+    function template() {
+        return div({
+            class: styles.classes.body
+        }, [
+            styles.sheet,
+            buildResultsHeader(),
+            div({
+                class: styles.classes.tableBody
+            }, gen.switch('$component.state()', [
+                [
+                    '"notfound"',  
+                    div({
+                        style: {
+                            padding: '12px',
+                            backgroundColor: 'silver',
+                            textAlign: 'center'
+                        }
+                    }, buildNoResults())
+                ],
+                [
+                    '"none"',
+                    div({
+                        style: {
+                            padding: '12px',
+                            backgroundColor: 'silver',
+                            textAlign: 'center'
+                        }
+                    }, buildNoActiveSearch())
+                ],
+                [
+                    '$default',
+                    div({
+                        style: {
+                            flex: '1 1 0px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            position: 'relative'
+                        }
+                    }, [
+                        buildLoading(),
+                        gen.if('$component.rows().length > 0', buildResultsRows())
+                    ]),
+                ]
+            ]))
+        ]);
+    }
+
+    function component() {
+        return {
+            viewModel: {
+                createViewModel: (params, componentInfo) => {
+                    return new ViewModel(params, componentInfo);
+                }
+            },
+            template: template()
+        };
+    }
+
+    return ko.kb.registerComponent(component);
+});
