@@ -13,13 +13,13 @@ define([
 ) {
     'use strict';
 
-    var t = html.tag,
+    const t = html.tag,
         div = t('div'),
         span = t('span'),
         p = t('p'),
         a = t('a');
 
-    var styles = html.makeStyles({
+    const styles = html.makeStyles({
         component: {
             flex: '1 1 0px',
             display: 'flex',
@@ -112,8 +112,8 @@ define([
                 textAlign: 'left',
                 display: 'flex',
                 alignItems: 'center'
-            }            
-        },        
+            }
+        },
         innerCell: {
             flex: '1 1 0px',
             overflow: 'hidden',
@@ -181,7 +181,7 @@ define([
 
             this.componentInfo = componentInfo;
             this.slowLoadingThreshold = 300;
-        
+
             this.table = params.table;
             this.rows = this.table.rows;
             this.columns = this.table.columns;
@@ -194,17 +194,15 @@ define([
                 return tw + column.width;
             }, 0);
             this.columns.forEach((column) => {
-                var width = String(100 * column.width / this.totalWidth) + '%';
+                const width = String(100 * column.width / this.totalWidth) + '%';
 
                 // Header column style
-                var s = column.headerStyle || {};
-                s.flexBasis = width;
-                column.headerStyle = s;
+                column.headerStyle = column.headerStyle || {};
+                column.headerStyle.flexBasis = width;
 
                 // Row column style
-                s = column.rowStyle || {};
-                s.flexBasis = width;
-                column.rowStyle = s;
+                column.rowStyle = column.rowStyle || {};
+                column.rowStyle.flexBasis = width;
             });
 
             this.sortColumn = ko.observable('timestamp');
@@ -236,10 +234,10 @@ define([
             this.subscribe(this.height, (newValue) => {
                 if (!newValue) {
                     this.table.pageSize(null);
-                }            
-                
+                }
+
                 const rowCount = Math.floor(newValue / this.rowHeight);
-    
+
                 this.table.pageSize(rowCount);
             });
 
@@ -275,10 +273,10 @@ define([
         }
 
         /*
-            Sorting is managed here in the table, and we 
+            Sorting is managed here in the table, and we
             communicate changes via the table.sortColumn() call.
              We don't know whether the implementation supports
-             single or multiple column sorts, etc. 
+             single or multiple column sorts, etc.
              In turn, the sorted property may be set to asending,
              descending, or falsy.
         */
@@ -327,9 +325,9 @@ define([
                 window.removeEventListener('resize', this.resizer, false);
             }
         }
-        
+
     }
-   
+
 
     function obj(aa) {
         return aa.reduce(function (acc, prop) {
@@ -360,7 +358,7 @@ define([
             },
             class: [styles.classes.headerCell]
         }, [
-            gen.if('sort', 
+            gen.if('sort',
                 div({
                     class: [styles.classes.innerSortCell]
                 }, [
@@ -373,7 +371,7 @@ define([
                                 text: 'column.label'
                             },
                             style: {
-                                
+
                                 marginRight: '2px'
                             },
                         })
@@ -383,15 +381,15 @@ define([
                     div({
                         class: [styles.classes.sortIndicator]
                     }, [
-                        gen.if('!column.sort.active()', 
+                        gen.if('!column.sort.active()',
                             span({
                                 class: 'fa fa-sort'
                             }),
-                            gen.if('column.sort.direction() === "descending"', 
+                            gen.if('column.sort.direction() === "descending"',
                                 span({
                                     class: 'fa fa-sort-desc'
                                 }),
-                                gen.if('column.sort.direction() === "ascending"', 
+                                gen.if('column.sort.direction() === "ascending"',
                                     span({
                                         class: 'fa fa-sort-asc'
                                     }))))
@@ -410,7 +408,7 @@ define([
     }
 
     function buildColValue() {
-        return gen.if('row[column.name].action', 
+        return gen.if('row[column.name].action',
             span({
                 dataBind: {
                     typedText: {
@@ -424,7 +422,7 @@ define([
                     }
                 }
             }),
-            gen.if('row[column.name].url', 
+            gen.if('row[column.name].url',
                 a({
                     dataBind: {
                         typedText: {
@@ -438,7 +436,7 @@ define([
                         click: 'function () {$component.doOpenUrl(row[column.name]);}',
                         clickBubble: 'false'
                     }
-                }),            
+                }),
                 span({
                     dataBind: {
                         typedText: {
@@ -454,7 +452,7 @@ define([
     }
 
     function  buildActionFnCol() {
-        return gen.if('row[column.name]', 
+        return gen.if('row[column.name]',
             a({
                 dataBind: {
                     typedText: {
@@ -472,7 +470,7 @@ define([
                     cursor: 'pointer'
                 }
             }),
-            gen.if('column.action.label', 
+            gen.if('column.action.label',
                 a({
                     dataBind: {
                         text: 'column.action.label',
@@ -500,7 +498,7 @@ define([
     }
 
     function  buildActionNameCol() {
-        return gen.if('row[column.name]', 
+        return gen.if('row[column.name]',
             a({
                 dataBind: {
                     typedText: {
@@ -518,7 +516,7 @@ define([
                     cursor: 'pointer'
                 }
             }),
-            gen.if('column.action.label', 
+            gen.if('column.action.label',
                 a({
                     dataBind: {
                         text: 'column.action.label',
@@ -543,8 +541,8 @@ define([
     }
 
     function  buildActionLinkCol() {
-        return gen.if('row[column.name]', 
-            gen.if('row[column.name].url', 
+        return gen.if('row[column.name]',
+            gen.if('row[column.name].url',
                 a({
                     dataBind: {
                         typedText: {
@@ -579,7 +577,7 @@ define([
             // row value. E.g. a per-row action.
 
             // NO column value, show the column action label or icon
-            gen.if('column.action.label', 
+            gen.if('column.action.label',
                 a({
                     dataBind: {
                         text: 'column.action.label',
@@ -607,7 +605,7 @@ define([
     }
 
     function buildResultsRows() {
-        var rowClass = {};
+        const rowClass = {};
         return div({
             dataBind: {
                 foreach: {
@@ -616,7 +614,7 @@ define([
                 }
             },
             class: styles.classes.itemRows
-        }, [            
+        }, [
             div({
                 dataBind: {
                     foreach: {
@@ -641,8 +639,8 @@ define([
                         gen.if('column.action.fn', buildActionFnCol()),
                         gen.if('column.action.name', buildActionNameCol()),
                         gen.if('column.action.link', buildActionLinkCol())
-                    ], 
-                    gen.if('column.component', 
+                    ],
+                    gen.if('column.component',
                         div({
                             dataBind: {
                                 component: {
@@ -668,7 +666,7 @@ define([
     }
 
     function buildLoading() {
-        gen.if('$component.isLoading', 
+        gen.if('$component.isLoading',
             div({
                 style: {
                     position: 'absolute',
@@ -676,7 +674,7 @@ define([
                     right: '0',
                     top: '0',
                     bottom: '0',
-                    backgroundColor: 'rgba(255, 255, 255, 0.5)',                    
+                    backgroundColor: 'rgba(255, 255, 255, 0.5)',
                     fontSize: '300%',
                     display: 'flex',
                     flexDirection: 'column',
@@ -706,7 +704,7 @@ define([
 
     function buildNoResults() {
         return div(
-            gen.if('$component.isLoading', 
+            gen.if('$component.isLoading',
                 p('Running your search! Going from Zero to Hero ... ' + html.loading()),
                 p('NO RESULTS FROM SEARCH - PLACEHOLDER')));
     }
@@ -721,7 +719,7 @@ define([
                 class: styles.classes.tableBody
             }, gen.switch('$component.state()', [
                 [
-                    '"notfound"',  
+                    '"notfound"',
                     div({
                         style: {
                             padding: '12px',

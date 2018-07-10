@@ -1,7 +1,7 @@
 define([
     'knockout',
     '../registry',
-    '../lib/generators',    
+    '../lib/generators',
     'kb_common/html',
     'kb_common/bootstrapUtils'
 ], function (
@@ -13,22 +13,22 @@ define([
 ) {
     'use strict';
 
-    var t = html.tag,
+    const t = html.tag,
         div = t('div');
 
     class ViewModel {
         constructor(params) {
             this.info = null;
 
-            var info = ko.unwrap(params.info);
+            const info = ko.unwrap(params.info);
             if (info !== undefined) {
                 this.info = BS.buildPresentableJson(info);
             }
             this.source = params.source;
             this.code = params.code;
-            this.message = params.message;            
+            this.message = params.message;
             this.detail = params.detail;
-            this.stackTrace = params.stackTrace;            
+            this.stackTrace = params.stackTrace;
         }
     }
 
@@ -45,10 +45,10 @@ define([
                     }
                 })
             }),
-            gen.if('source', 
+            gen.if('source',
                 BS.buildPanel({
                     name: 'source',
-                    class: 'kb-panel-light',                
+                    class: 'kb-panel-light',
                     title: 'Source',
                     type: 'danger',
                     body: div({
@@ -57,7 +57,7 @@ define([
                         }
                     })
                 })),
-            gen.if('code', 
+            gen.if('code',
                 BS.buildPanel({
                     name: 'code',
                     class: 'kb-panel-light',
@@ -68,8 +68,8 @@ define([
                             text: 'code'
                         }
                     })
-                })), 
-            gen.if('$data.detail',  
+                })),
+            gen.if('$data.detail',
                 BS.buildCollapsiblePanel({
                     name: 'detail',
                     title: 'Detail',
@@ -83,7 +83,7 @@ define([
                         }
                     })
                 })),
-            gen.if('$data.info', 
+            gen.if('$data.info',
                 BS.buildCollapsiblePanel({
                     name: 'info',
                     title: 'Info',
@@ -101,7 +101,7 @@ define([
                         }
                     }))
                 })),
-            gen.if('$data.stackTrace', 
+            gen.if('$data.stackTrace',
                 BS.buildCollapsiblePanel({
                     name: 'stackTrace',
                     title: 'Stack Trace',

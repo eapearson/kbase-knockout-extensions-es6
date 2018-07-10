@@ -1,6 +1,6 @@
 define([], function () {
     'use strict';
-    
+
     const READY = Symbol();
     const STOPPED = Symbol();
     const SCHEDULED = Symbol();
@@ -10,15 +10,15 @@ define([], function () {
             this.queue = [];
             this.runInterval = 0;
             this.messageReceivers = {};
-            
+
             this.state = READY;
         }
 
         processQueue() {
-            let processing = this.queue;
+            const processing = this.queue;
             this.queue = [];
             processing.forEach((message) => {
-                let receivers = this.messageReceivers[message.id];
+                const receivers = this.messageReceivers[message.id];
                 if (!receivers) {
                     return;
                 }

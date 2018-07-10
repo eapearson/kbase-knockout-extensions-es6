@@ -1,22 +1,7 @@
 define([
     'require',
     'bluebird',
-    'knockout',
-
-    // // load 3rd party extensions    
-    // 'knockout-mapping',
-    // 'knockout-arraytransforms',
-    // 'knockout-validation',
-    // 'knockout-switch-case',
-
-    // // This one we have tweaked.
-    // './ko/knockout-es6-collections',
-
-    // // load our extensions
-    // './ko/bindingHandlers',
-    // './ko/componentLoaders',
-    // './ko/extenders',
-    // './ko/subscribables'
+    'knockout'
 ], function (
     require,
     Promise,
@@ -27,7 +12,7 @@ define([
     function load() {
         return new Promise((resolve, reject) => {
             require([
-                // load 3rd party extensions    
+                // load 3rd party extensions
                 'knockout-mapping',
                 'knockout-arraytransforms',
                 'knockout-validation',
@@ -49,7 +34,7 @@ define([
             });
         });
     }
-    
+
     return {
         load, ko
     };

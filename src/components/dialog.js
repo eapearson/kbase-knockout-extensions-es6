@@ -2,14 +2,14 @@ define([
     'kb_common/html',
     '../registry',
     '../lib/viewModelBase'
-], function(
+], function (
     html,
     reg,
     ViewModelBase
 ) {
     'use strict';
 
-    var t = html.tag,
+    const t = html.tag,
         div = t('div'),
         button = t('button');
 

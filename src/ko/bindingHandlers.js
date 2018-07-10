@@ -13,38 +13,40 @@ define([
 ) {
     'use strict';
 
+    const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const shortDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
     ko.bindingHandlers.htmlMarkdown = {
         update: function (element, valueAccessor) {
-            var markdown = marked(valueAccessor());
-            element.innerHTML = markdown;
+            element.innerHTML =  marked(valueAccessor());
         }
     };
 
     ko.bindingHandlers.markdown = {
         init: function (element, valueAccessor) {
-            let value = ko.unwrap(valueAccessor());
+            const value = ko.unwrap(valueAccessor());
             element.innerHTML = marked(value);
         },
         update: function (element, valueAccessor) {
-            let value = ko.unwrap(valueAccessor());
+            const value = ko.unwrap(valueAccessor());
             element.innerHTML = marked(value);
         }
     };
 
     ko.bindingHandlers.numberText = {
         update: function (element, valueAccessor, allBindings) {
-            var value = valueAccessor();
-            var valueUnwrapped = ko.unwrap(value);
-            var format = allBindings.get('numberFormat') || '';
-            var formatted = numeral(valueUnwrapped).format(format);
+            const value = valueAccessor();
+            const valueUnwrapped = ko.unwrap(value);
+            const format = allBindings.get('numberFormat') || '';
+            const formatted = numeral(valueUnwrapped).format(format);
             element.innerText = formatted;
         }
     };
 
     function niceDuration(value, options) {
         options = options || {};
-        var minimized = [];
-        var units = [{
+        const minimized = [];
+        const units = [{
             unit: 'millisecond',
             short: 'ms',
             single: 'm',
@@ -70,13 +72,13 @@ define([
             single: 'd',
             size: 30
         }];
-        var temp = Math.abs(value);
-        var parts = units
+        let temp = Math.abs(value);
+        const parts = units
             .map(function (unit) {
                 // Get the remainder of the current value
                 // sans unit size of it composing the next
                 // measure.
-                var unitValue = temp % unit.size;
+                const unitValue = temp % unit.size;
                 // Recompute the measure in terms of the next unit size.
                 temp = (temp - unitValue) / unit.size;
                 return {
@@ -92,8 +94,8 @@ define([
         // hit the first unit with value. This effectively trims off
         // zeros from the end.
         // We also can limit the resolution with options.resolution
-        var keep = false;
-        for (var i = 0; i < parts.length; i += 1) {
+        let keep = false;
+        for (let i = 0; i < parts.length; i += 1) {
             if (!keep) {
                 if (parts[i].value > 0) {
                     keep = true;
@@ -124,7 +126,7 @@ define([
     }
 
     function niceRelativeTimeRange(startDate, endDate, now) {
-        let nowTime = now || new Date.now();
+        const nowTime = now || new Date.now();
         let date;
         let prefix, suffix;
         if (startDate.getTime() > nowTime) {
@@ -149,22 +151,22 @@ define([
         // let nowDate = now.getDay();
         // if (startDay)
 
-                        
+
         // let shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-        let elapsed = Math.round((nowTime - date.getTime()) / 1000);
-        let elapsedAbs = Math.abs(elapsed);
+        const elapsed = Math.round((nowTime - date.getTime()) / 1000);
+        const elapsedAbs = Math.abs(elapsed);
         let measureAbs;
 
         // Within the last 7 days...
         //if (elapsedAbs < 60 * 60 * 24 * 7) {
 
-        let measures = [];
+        const measures = [];
         let remaining;
 
         if (elapsedAbs === 0) {
             return 'now';
-        } else if (elapsedAbs < 60) { 
+        } else if (elapsedAbs < 60) {
             measures.push([elapsedAbs, 'second']);
         } else if (elapsedAbs < 60 * 60) {
             measureAbs = Math.floor(elapsedAbs / 60);
@@ -173,15 +175,15 @@ define([
             if (remaining > 0) {
                 measures.push([remaining, 'second']);
             }
-        } else if (elapsedAbs < 60 * 60 * 24) { 
+        } else if (elapsedAbs < 60 * 60 * 24) {
             measureAbs = Math.floor(elapsedAbs / 3600);
             // measures.push([measureAbs, 'hour']);
             // remaining = elapsedAbs - (measureAbs * 3600);
             // if (remaining > 0) {
             //     measures.push([remaining, 'minute']);
             // }
-            let remainingSeconds = elapsedAbs - (measureAbs * 3600);
-            let remainingMinutes = Math.round(remainingSeconds/60);
+            const remainingSeconds = elapsedAbs - (measureAbs * 3600);
+            const remainingMinutes = Math.round(remainingSeconds/60);
             if (remainingMinutes === 60) {
                 // if we round up to 24 hours, just considering this another
                 // day and don't show hours.
@@ -197,8 +199,8 @@ define([
             }
         } else if (elapsedAbs < 60 * 60 * 24 * 7) {
             measureAbs = Math.floor(elapsedAbs / (3600 * 24));
-            let remainingSeconds = elapsedAbs - (measureAbs * 3600 * 24);
-            let remainingHours = Math.round(remainingSeconds/3600);
+            const remainingSeconds = elapsedAbs - (measureAbs * 3600 * 24);
+            const remainingHours = Math.round(remainingSeconds/3600);
             if (remainingHours === 24) {
                 // if we round up to 24 hours, just considering this another
                 // day and don't show hours.
@@ -218,7 +220,7 @@ define([
         }
 
         return [
-            (prefix ? prefix + ' ' : ''), 
+            (prefix ? prefix + ' ' : ''),
             measures.map(([measure, unit]) => {
                 if (measure !== 1) {
                     unit += 's';
@@ -229,91 +231,9 @@ define([
         ].join('');
     }
 
-    // function niceRelativeTimeRange_original(startDate, endDate, now) {
-    //     let nowTime = now || new Date.now();
-    //     let date;
-    //     let prefix, suffix;
-    //     if (startDate.getTime() > nowTime) {
-    //         prefix = 'in';
-    //         date = startDate;
-    //     } else if (endDate === null) {
-    //         return 'happening now';
-    //     } else if (endDate.getTime() < nowTime) {
-    //         prefix = 'ended';
-    //         suffix = 'ago';
-    //         date = endDate;
-    //     } else {
-    //         prefix = 'happening now, ending in ';
-    //         date = endDate;
-    //     }
-
-    //     // today/tomorrow
-    //     // let startDay = startDate.getDay();
-
-    //     // let todayBegin = new Date(now.getFullYear(), now.getMonth(), now.getDay(), 0, 0, 0, 0);
-    //     // let tomorrowBegin = todayBegin
-    //     // let nowDate = now.getDay();
-    //     // if (startDay)
-
-                        
-    //     // let shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-    //     let elapsed = Math.round((nowTime - date.getTime()) / 1000);
-    //     let elapsedAbs = Math.abs(elapsed);
-    //     let measureAbs;
-
-    //     // Within the last 7 days...
-    //     //if (elapsedAbs < 60 * 60 * 24 * 7) {
-
-    //     let measures = [];
-
-    //     if (elapsedAbs === 0) {
-    //         return 'now';
-    //     } else if (elapsedAbs < 60) { 
-    //         // var measure = elapsed;
-    //         measures.push([elapsedAbs, 'second']);
-    //         // measureAbs = elapsedAbs;
-    //         // unit = 'second';
-    //     } else if (elapsedAbs < 60 * 60) {
-    //         // var measure = Math.round(elapsed / 60);
-    //         measureAbs = Math.round(elapsedAbs / 60);
-    //         if (measureAbs <= 5) {
-    //             // at 5 minutes we also show the seconds
-    //         }
-    //         // unit = 'minute';
-    //         measures.push([measureAbs, 'minute']);
-    //     } else if (elapsedAbs < 60 * 60 * 24) { 
-    //         // var measure = Math.round(elapsed / 3600);
-    //         measureAbs = Math.round(elapsedAbs / 3600);
-    //         // unit = 'hour';
-    //         measures.push([measureAbs, 'hour']);
-    //     } else if (elapsedAbs < 60 * 60 * 24 * 7) {
-    //         // var measure = Math.round(elapsed / (3600 * 24));
-    //         measureAbs = Math.round(elapsedAbs / (3600 * 24));
-    //         // unit = 'day';
-    //         measures.push([measureAbs, 'day']);
-    //     } else {
-    //         // var measure = Math.round(elapsed / (3600 * 24));
-    //         measureAbs = Math.round(elapsedAbs / (3600 * 24));
-    //         // unit = 'day';
-    //         measures.push([measureAbs, 'day']);
-
-    //     }
-
-    //     return [
-    //         (prefix ? prefix + ' ' : ''), 
-    //         measures.map(([measure, unit]) => {
-    //             if (measure !== 1) {
-    //                 unit += 's';
-    //             }
-    //             return [measure, unit].join(' ');
-    //         }),
-    //         (suffix ? ' ' + suffix : '')
-    //     ].join('');
-    // }
     function niceTime(date) {
-        var time;
-        var minutes = date.getMinutes();
+        let time;
+        let minutes = date.getMinutes();
         if (minutes < 10) {
             minutes = '0' + minutes;
         }
@@ -330,27 +250,22 @@ define([
     }
 
     function niceDate(date, options) {
-        var now = new Date();
+        const now = new Date();
 
-        var shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        var shortDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-       
-        var year = '';
+        let year = '';
         if (now.getFullYear() !== date.getFullYear()) {
             year = ', ' + date.getFullYear();
         }
-        var day = '';
+        let day = '';
         if (options && options.showDay) {
             day = shortDays[date.getDay()] + ' ';
         }
-        var datePart = day + shortMonths[date.getMonth()] + ' ' + date.getDate() + year;
-        
-        return datePart;
+        return day + shortMonths[date.getMonth()] + ' ' + date.getDate() + year;
     }
 
-    function niceTimeRange (from, to, options) {
+    function niceTimeRange(from, to, options) {
         // same day
-        var timePart;
+        let timePart;
         if (from) {
             if (to) {
                 if (from.getDate() === to.getDate()) {
@@ -371,31 +286,27 @@ define([
 
     ko.bindingHandlers.focus = {
         init: function (element, valueAccessor) {
-            let focusser = valueAccessor().focusser;
+            const focusser = valueAccessor().focusser;
             focusser.setElement(element);
         }
     };
 
-   
-
     ko.bindingHandlers.typedText = {
         update: function (element, valueAccessor) {
-            var value = valueAccessor();
-            var valueUnwrapped;
-            var format = value.format;
-            var type = value.type;
-            var missing = value.missing || '';
-            var defaultValue = value.default;
-            // var format = allBindings.get('type') || '';
-            // var format = allBindings.get('numberFormat') || '';
-            var formatted;
+            const value = valueAccessor();
+            let valueUnwrapped;
+            const format = value.format;
+            const type = value.type;
+            const missing = value.missing || '';
+            const defaultValue = value.default;
+            let formatted;
             switch (type) {
             case 'number':
                 numeral.nullFormat('');
                 valueUnwrapped = ko.unwrap(value.value);
                 if (valueUnwrapped === undefined || valueUnwrapped === null) {
                     formatted = missing;
-                } else {                    
+                } else {
                     formatted = numeral(valueUnwrapped).format(format);
                 }
                 break;

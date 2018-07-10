@@ -13,7 +13,7 @@ define([
 ) {
     'use strict';
 
-    var t = html.tag,
+    const t = html.tag,
         ul = t('ul'),
         li = t('li'),
         a = t('a'),
@@ -21,7 +21,7 @@ define([
         div = t('div');
 
     class viewModel extends ViewModelBase  {
-        constructor (params) {
+        constructor(params) {
             super(params);
 
             this.tabsetId = html.genId();
@@ -59,7 +59,7 @@ define([
         }
 
         doCloseTab(tab) {
-            let index = this.tabs.indexOf(tab);
+            const index = this.tabs.indexOf(tab);
             this.tabs.remove(tab);
             if (index === 0) {
                 return;
@@ -71,11 +71,11 @@ define([
 
             // If no closable tabs, we go back to the first tab.
             let currentTab;
-            let totalTabs = this.tabs().length;
-            let closableTabs = this.tabs().reduce((closableCount, tab) => {
+            const totalTabs = this.tabs().length;
+            const closableTabs = this.tabs().reduce((closableCount, tab) => {
                 return closableCount + (tab.closable() ? 1 : 0);
             }, 0);
-            let nonclosableTabs = totalTabs - closableTabs;
+            const nonclosableTabs = totalTabs - closableTabs;
             if (closableTabs > 0) {
                 // avoid opening up the last unclosable tab if there are closables left.
                 if (index === nonclosableTabs) {
@@ -105,7 +105,7 @@ define([
                 },
                 // label: params.tab.label,
                 panel: {
-                    component: params.panel.component, 
+                    component: params.panel.component,
                     content: params.panel.content
                 },
                 // component: params.component,
@@ -116,7 +116,7 @@ define([
         }
 
         addTab(tab, activate) {
-            var newTab = this.makeTab(tab);
+            const newTab = this.makeTab(tab);
             this.tabs.push(newTab);
             if (activate) {
                 this.deactivateCurrentTab();
@@ -140,7 +140,7 @@ define([
             this.activateTab(tab);
         }
 
-        
+
     }
 
     function buildTab() {
@@ -161,17 +161,17 @@ define([
                         'data-k-b-testhook-tab': 'id'
                     },
                     class: 'active() ? "' + styles.classes.tabLinkActive + '": ""'
-                    
+
                 },
                 role: 'tab',
                 class: styles.classes.tabLink
-            }, [                
+            }, [
                 span({
                     dataBind: {
                         text: 'tab.label'
                     }
                 }),
-                gen.koIf('tab.component', 
+                gen.koIf('tab.component',
                     span({
                         dataBind: {
                             component: {
@@ -181,7 +181,7 @@ define([
                         },
                         dataKBTesthookButton: 'tab'
                     })),
-                gen.koIf('$parent.closable', 
+                gen.koIf('$parent.closable',
                     span({
                         class: styles.classes.tabButton,
                         dataBind: {
@@ -195,13 +195,13 @@ define([
     }
 
     function buildTabPanel() {
-        return gen.koIf('active', 
+        return gen.koIf('active',
             div({
                 dataBind: {
                     attr: {
                         active: 'active'
                     },
-                    css: { 
+                    css: {
                         in: 'active',
                         active: 'active'
                     },
@@ -209,7 +209,7 @@ define([
                 },
                 class: [styles.classes.tabPane, 'fade'],
                 role: 'tabpanel'
-            }, gen.koIf('$data.component', 
+            }, gen.koIf('$data.component',
                 div({
                     style: {
                         flex: '1 1 0px',
@@ -223,7 +223,7 @@ define([
                         }
                     }
                 }),
-                gen.koIf('$data.content', 
+                gen.koIf('$data.content',
                     div({
                         style: {
                             flex: '1 1 0px',
@@ -237,7 +237,7 @@ define([
                     div('** NO CONTENT **')))));
     }
 
-    let styles = html.makeStyles({
+    const styles = html.makeStyles({
         component: {
             css: {
                 flex: '1 1 0px',

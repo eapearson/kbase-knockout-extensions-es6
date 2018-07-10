@@ -3,7 +3,7 @@ define([
     '../registry',
     'kb_common/html',
     '../lib/clock'
-], function(
+], function (
     ko,
     reg,
     html,
@@ -11,14 +11,14 @@ define([
 ) {
     'use strict';
 
-    var t = html.tag,
+    const t = html.tag,
         span = t('span'),
         div = t('div');
 
     function niceDuration(value, options) {
         options = options || {};
-        var minimized = [];
-        var units = [{
+        const minimized = [];
+        const units = [{
             unit: 'millisecond',
             short: 'ms',
             single: 'm',
@@ -44,13 +44,13 @@ define([
             single: 'd',
             size: 30
         }];
-        var temp = Math.abs(value);
-        var parts = units
+        let temp = Math.abs(value);
+        const parts = units
             .map(function (unit) {
                 // Get the remainder of the current value
                 // sans unit size of it composing the next
                 // measure.
-                var unitValue = temp % unit.size;
+                const unitValue = temp % unit.size;
                 // Recompute the measure in terms of the next unit size.
                 temp = (temp - unitValue) / unit.size;
                 return {
@@ -66,8 +66,8 @@ define([
         // hit the first unit with value. This effectively trims off
         // zeros from the end.
         // We also can limit the resolution with options.resolution
-        var keep = false;
-        for (var i = 0; i < parts.length; i += 1) {
+        let keep = false;
+        for (let i = 0; i < parts.length; i += 1) {
             if (!keep) {
                 if (parts[i].value > 0) {
                     keep = true;
@@ -98,7 +98,7 @@ define([
     }
 
     class ViewModel {
-        constructor (params) {
+        constructor(params) {
             this.startTime = ko.utils.unwrapObservable(params.startTime);
             if (this.startTime instanceof Date) {
                 this.startTime = this.startTime.getTime();
@@ -111,20 +111,19 @@ define([
 
             this.elapsed = ko.pureComputed(() => {
                 if (this.startTime) {
-                    var e =  this.currentTime() - this.startTime;
-                    return niceDuration(e);
-                } 
+                    return niceDuration(this.currentTime() - this.startTime);
+                }
                 return 'n/a';
             });
         }
-        
+
         dispose() {
             if (this.listener) {
                 Clock.globalClock.forget(this.listener);
             }
         }
     }
-    
+
     function template() {
         return div([
             span({

@@ -8,14 +8,14 @@ define([
     'css!./jsonViewer.css'
 ], function (
     ko,
-    numeral,    
+    numeral,
     html,
     reg,
     gen
 ) {
     'use strict';
 
-    var t = html.tag,
+    const t = html.tag,
         div = t('div'),
         span = t('span');
 
@@ -110,7 +110,7 @@ define([
             this.key = params.key;
             this.level = params.level || 0;
         }
-       
+
     }
 
     function buildIcon(name) {
@@ -171,7 +171,7 @@ define([
                         }),
                         ':'
                     ]),
-                    gen.if('show', 
+                    gen.if('show',
                         div({
                             dataBind: {
                                 foreach: 'value'
@@ -196,7 +196,7 @@ define([
 
     function buildArray() {
         return div({}, [
-            gen.if('value.length === 0', 
+            gen.if('value.length === 0',
                 span({
                     style: {
                         color: 'gray'
@@ -241,7 +241,7 @@ define([
                         }),
                         ':'
                     ]),
-                    gen.if('show', 
+                    gen.if('show',
                         div({
                             dataBind: {
                                 foreach: 'value'

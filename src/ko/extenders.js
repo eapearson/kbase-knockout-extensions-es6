@@ -23,16 +23,16 @@ define([
     }
 
     ko.extenders.dirty = function (target, startDirty) {
-        var lastValue = target();
-        var cleanValue = ko.observable(ko.mapping.toJSON(target));
+        let lastValue = target();
+        const cleanValue = ko.observable(ko.mapping.toJSON(target));
 
-        var dirtyOverride = ko.observable(ko.utils.unwrapObservable(startDirty));
+        const dirtyOverride = ko.observable(ko.utils.unwrapObservable(startDirty));
 
         target.isDirty = ko.computed(function () {
-            var currentValue = ko.mapping.toJSON(target);
-            var currentIsEmpty = isEmptyJSON(currentValue);
-            var lastCleanValue = cleanValue();
-            var cleanIsEmpty = isEmptyJSON(lastCleanValue);
+            const currentValue = ko.mapping.toJSON(target);
+            const currentIsEmpty = isEmptyJSON(currentValue);
+            const lastCleanValue = cleanValue();
+            const cleanIsEmpty = isEmptyJSON(lastCleanValue);
             if (currentIsEmpty & cleanIsEmpty) {
                 return false;
             }
@@ -62,13 +62,13 @@ define([
     };
 
     ko.extenders.enabled = function (target, config) {
-        var isEnabled = ko.observable();
+        const isEnabled = ko.observable();
         target.isEnabled = isEnabled;
 
         function enableTest(newValue) {
             try {
-                var enabled = isEnabled();
-                var newEnabled = config.fun(newValue);
+                const enabled = isEnabled();
+                const newEnabled = config.fun(newValue);
                 if (enabled === undefined) {
                     // first time running.
                     isEnabled(newEnabled);
@@ -134,7 +134,7 @@ define([
 
         function validate() {
             try {
-                var newValue = target();
+                const newValue = target();
                 // first evaluate the required condition
                 if (isEmpty(newValue)) {
                     if (target.constraint.isRequired()) {
@@ -157,7 +157,7 @@ define([
                     target.constraint.state('valid');
                     return;
                 }
-                var result = config.validate(newValue);
+                let result = config.validate(newValue);
                 if (typeof result === 'string') {
                     result = {
                         message: result

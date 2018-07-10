@@ -75,14 +75,14 @@ define([], function () {
     }
 
     function koLet(lets, markup) {
-        let letExpression = '{' + Object.keys(lets).map((key) => {
+        const letExpression = '{' + Object.keys(lets).map((key) => {
             // use " for keys to be as generic as possible
-            // the value is raw, though, since it may be a 
+            // the value is raw, though, since it may be a
             // vm reference or a literal.
             return  '"' + key + '":' + lets[key];
         })
             .join(', ') + '}';
-        let result = [
+        const result = [
             '<!-- ko let: ' + letExpression + '-->',
             markup,
             '<!-- /ko -->'
@@ -91,20 +91,20 @@ define([], function () {
     }
 
     function koIfLet(lets, markup) {
-        let valueExpressions = [];
-        let letExpression = '{' + Object.keys(lets).map((key) => {
+        const valueExpressions = [];
+        const letExpression = '{' + Object.keys(lets).map((key) => {
             // use " for keys to be as generic as possible
-            // the value is raw, though, since it may be a 
+            // the value is raw, though, since it may be a
             // vm reference or a literal.
             valueExpressions.push(lets[key]);
             return  '"' + key + '":' + lets[key];
         })
             .join(', ') + '}';
-        let ifExpression = '( ' + valueExpressions.map((expr) => {
+        const ifExpression = '( ' + valueExpressions.map((expr) => {
             return '(' + expr + ')';
         }).join(' && ') + ' )';
 
-        let result = [
+        const result = [
 
             '<!-- ko if: ' + ifExpression + ' -->',
             '<!-- ko let: ' + letExpression + '-->',
@@ -146,7 +146,7 @@ define([], function () {
         ];
     }
 
-    
+
 
     function koComponent(componentDef) {
         return [

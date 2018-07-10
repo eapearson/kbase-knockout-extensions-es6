@@ -8,19 +8,18 @@ define([
     NanoBus
 ) {
     'use strict';
-    
+
     class ViewModelBase {
         constructor(params) {
             params = params || {};
             this.subscriptions = new SubscriptionManager();
-            // is this kosher? Maybe a better way of tying in 
+            // is this kosher? Maybe a better way of tying in
             // functionality to the current knockout system?
             // E.g. passing in a ko in the constructor?
             this.observable = ko.observable;
             this.observableArray = ko.observableArray;
             this.bus = new NanoBus();
 
-            
             this.parentBus = params.bus;
         }
 

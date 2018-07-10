@@ -3,7 +3,7 @@ define([
     'kb_common/html',
     '../registry',
     '../lib/clock'
-], function(
+], function (
     ko,
     html,
     reg,
@@ -11,12 +11,14 @@ define([
 ) {
     'use strict';
 
-    var t = html.tag,
+    const t = html.tag,
         span = t('span'),
         div = t('div');
 
+    const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
     function niceElapsedTime(dateObj, nowDateObj) {
-        var date, now;
+        let date, now;
         if (typeof dateObj === 'string') {
             date = new Date(dateObj);
         } else if (typeof dateObj === 'number') {
@@ -34,17 +36,15 @@ define([
             now = nowDateObj;
         }
 
-        var shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-        var elapsed = Math.round((now.getTime() - date.getTime()) / 1000);
-        var elapsedAbs = Math.abs(elapsed);
+        const elapsed = Math.round((now.getTime() - date.getTime()) / 1000);
+        const elapsedAbs = Math.abs(elapsed);
 
         // Within the last 7 days...
         if (elapsedAbs < 60 * 60 * 24 * 7) {
             if (elapsedAbs === 0) {
                 return 'now';
             }
-            var measure, measureAbs, unit;
+            let measure, measureAbs, unit;
             if (elapsedAbs < 60) {
                 measure = elapsed;
                 measureAbs = elapsedAbs;
@@ -67,7 +67,7 @@ define([
                 unit += 's';
             }
 
-            var prefix = null, suffix = null;
+            let prefix = null, suffix = null;
             if (measure < 0) {
                 prefix = 'in';
             } else if (measure > 0) {
@@ -96,18 +96,18 @@ define([
             this.elapsed = ko.pureComputed(() => {
                 if (this.startTime) {
                     return niceElapsedTime(this.startTime, this.currentTime());
-                } 
+                }
                 return 'n/a';
             });
         }
-        
+
         dispose() {
             if (this.listener) {
                 Clock.globalClock.forget(this.listener);
             }
         }
     }
-    
+
     function template() {
         return div([
             span({

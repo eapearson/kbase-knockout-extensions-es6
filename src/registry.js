@@ -18,9 +18,9 @@ define([
             if (this.installedStylesheets[id]) {
                 return;
             }
-            var temp = document.createElement('div');
+            const temp = document.createElement('div');
             temp.innerHTML = stylesheet;
-            var style = temp.querySelector('style');
+            const style = temp.querySelector('style');
             style.id = 'componentStyle_' + id;
             if (!style) {
                 // This means an invalid stylesheet was passed here.
@@ -32,8 +32,8 @@ define([
         }
 
         registerComponent(componentFactory) {
-            var name = new Uuid(4).format();
-            var component = componentFactory();
+            const name = new Uuid(4).format();
+            const component = componentFactory();
 
             // wrap the view modei in a view model factory so we can always
             // pass the context with no fuss...
@@ -41,8 +41,8 @@ define([
 
             let componentToRegister;
             if (component.viewModelWithContext) {
-                let viewModelFactory = function(params, componentInfo) {
-                    let context = ko.contextFor(componentInfo.element);
+                const viewModelFactory = function (params, componentInfo) {
+                    const context = ko.contextFor(componentInfo.element);
                     return new component.viewModelWithContext(params, context, componentInfo.element, componentInfo);
                 };
                 componentToRegister = {
