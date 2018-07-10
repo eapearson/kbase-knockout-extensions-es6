@@ -21,7 +21,7 @@ define([
 ) {
     'use strict';
 
-    var t = html.tag,        
+    const t = html.tag,
         span = t('span'),
         div = t('div');
 
@@ -30,14 +30,14 @@ define([
             super(params);
 
             this.showPanel = ko.observable();
-    
+
             this.openMessage = null;
             this.bus.on('close', (message) => {
                 if (message && message.open) {
                     this.openMessage = message.open;
                     this.showPanel(false);
                 } else {
-                    this.showPanel(false);                
+                    this.showPanel(false);
                 }
             });
 
@@ -47,28 +47,28 @@ define([
                 this.component(null);
                 this.embeddedComponentName(null);
             });
-    
+
             this.bus.on('open', (message) => {
                 if (this.showPanel()) {
                     this.bus.send('close', {open: message});
                     return;
-                } 
-    
+                }
+
                 this.showPanel(true);
                 this.embeddedComponentName(message.name);
-                
+
                 this.embeddedParams('{' + Object.keys(message.params || {}).map((key) => {
                     return key + ':' + message.params[key];
                 }).join(', ') + '}');
-    
-                var newVm = Object.keys(message.viewModel).reduce((accum, key) => {
+
+                const newVm = Object.keys(message.viewModel).reduce((accum, key) => {
                     accum[key] = message.viewModel[key];
                     return accum;
                 }, {});
                 newVm.onClose = () => {
                     this.doClose;
                 };
-                this.embeddedViewModel(newVm);        
+                this.embeddedViewModel(newVm);
             });
 
             this.panelStyle = ko.pureComputed(() => {
@@ -82,29 +82,29 @@ define([
                     return styles.classes.panelout;
                 }
             });
-    
+
             this.typeBackgroundColor = ko.pureComputed(() => {
                 if (!params.component()) {
                     return;
                 }
-                switch (params.component().type) {                     
+                switch (params.component().type) {
                 case 'error':
                     return 'rgba(145, 91, 91, 0.8)';
                 case 'info':
                 default:
-                    return 'rgba(64, 89, 140, 0.8)';       
-                }            
+                    return 'rgba(64, 89, 140, 0.8)';
+                }
             });
-    
+
             this.embeddedComponentName = ko.observable();
             this.embeddedParams = ko.observable();
             this.embeddedViewModel = ko.observable({});
-            
+
             this.embeddedParams.onClose = 'doClose';
-    
-            this.subscribe(params.component, (newValue) => {
+
+            this.subscribe(this.component, (newValue) => {
                 if (newValue) {
-                    this.bus.send('open', newValue);                
+                    this.bus.send('open', newValue);
                 } else {
                     if (this.showPanel()) {
                         this.bus.send('close');
@@ -112,27 +112,28 @@ define([
                 }
             });
         }
-        
+
         doClose() {
             this.bus.send('close');
         }
 
         onPanelAnimationEnd(data, ev) {
             if (ev.target.classList.contains(styles.classes.panelout)) {
-                this.bus.send('clear');
-                // HACK ALERT: since we are using knockout event listener, set 
+                // HACK ALERT: since we are using knockout event listener, set
                 // persistently on the node, we don't have any context for this
                 // animation end ... so if this was a close with open, the
                 // open message will have been set ...
                 if (this.openMessage) {
                     this.bus.send('open', this.openMessage);
                     this.openMessage = null;
+                } else {
+                    this.bus.send('clear');
                 }
             }
         }
     }
 
-    var styles = html.makeStyles({
+    const styles = html.makeStyles({
         classes: {
             container: {
                 css: {
@@ -210,7 +211,7 @@ define([
                     opacity: '0',
                     left: '-100%'
                 }
-            },           
+            },
             miniButton: {
                 css: {
                     padding: '2px',
@@ -228,7 +229,7 @@ define([
                     }
                 }
             }
-        }, 
+        },
         rules: {
             keyframes: {
                 slidein: {
@@ -292,7 +293,7 @@ define([
                 class: styles.classes.panelBody
             }, [
                 gen.if('embeddedComponentName()',
-                    gen.with('embeddedViewModel()', 
+                    gen.with('embeddedViewModel()',
                         div({
                             dataBind: {
                                 component: {
