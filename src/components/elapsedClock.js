@@ -2,12 +2,14 @@ define([
     'knockout',
     '../registry',
     'kb_common/html',
-    '../lib/clock'
+    '../lib/clock',
+    '../lib/viewModelBase'
 ], function (
     ko,
     reg,
     html,
-    Clock
+    clock,
+    ViewModelBase
 ) {
     'use strict';
 
@@ -97,15 +99,20 @@ define([
         }
     }
 
-    class ViewModel {
+    class ViewModel extends ViewModelBase {
         constructor(params) {
+            super(params);
+
             this.startTime = ko.utils.unwrapObservable(params.startTime);
             if (this.startTime instanceof Date) {
                 this.startTime = this.startTime.getTime();
             }
+
             this.currentTime = ko.observable((new Date()).getTime());
 
-            this.listener = Clock.globalClock.listen(() => {
+            // TODO: allow an optional finish time to stop the clock.
+
+            this.listener = clock.globalClock.listen(() => {
                 this.currentTime((new Date()).getTime());
             }, params.updateInterval || 1);
 
@@ -119,8 +126,9 @@ define([
 
         dispose() {
             if (this.listener) {
-                Clock.globalClock.forget(this.listener);
+                clock.globalClock.forget(this.listener);
             }
+            super.dispose();
         }
     }
 
