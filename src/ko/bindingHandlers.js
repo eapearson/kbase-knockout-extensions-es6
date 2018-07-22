@@ -125,41 +125,54 @@ define([
         }
     }
 
-    function niceRelativeTimeRange(startDate, endDate, now) {
+    function niceRelativeTimeRange(startDateInput, endDateInput, now) {
+        let startDate;
+        if (startDateInput === null || endDateInput === undefined) {
+            startDate = null;
+        } else {
+            startDate = moment(startDateInput).toDate();
+        }
+
+        let endDate;
+        if (endDateInput === null || endDateInput === undefined) {
+            endDate = null;
+        } else {
+            endDate = moment(endDateInput).toDate();
+        }
+
         const nowTime = now || new Date.now();
         let date;
         let prefix, suffix;
-        if (startDate.getTime() > nowTime) {
-            prefix = 'in';
-            date = startDate;
-        } else if (endDate === null) {
-            return 'happening now';
-        } else if (endDate.getTime() < nowTime) {
-            prefix = 'ended';
-            suffix = 'ago';
-            date = endDate;
+        if (startDate === null) {
+            if (endDate === null) {
+                return 'happening now, perpetual';
+            } else if (endDate.getTime() < nowTime) {
+                prefix = 'ended';
+                suffix = 'ago';
+                date = endDate;
+            } else {
+                prefix = 'happening now, ending in ';
+                date = endDate;
+            }
         } else {
-            prefix = 'happening now, ending in ';
-            date = endDate;
+            if (startDate.getTime() > nowTime) {
+                prefix = 'in';
+                date = startDate;
+            } else if (endDate === null) {
+                return 'happening now, indefinite end';
+            } else if (endDate.getTime() < nowTime) {
+                prefix = 'ended';
+                suffix = 'ago';
+                date = endDate;
+            } else {
+                prefix = 'happening now, ending in ';
+                date = endDate;
+            }
         }
-
-        // today/tomorrow
-        // let startDay = startDate.getDay();
-
-        // let todayBegin = new Date(now.getFullYear(), now.getMonth(), now.getDay(), 0, 0, 0, 0);
-        // let tomorrowBegin = todayBegin
-        // let nowDate = now.getDay();
-        // if (startDay)
-
-
-        // let shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
         const elapsed = Math.round((nowTime - date.getTime()) / 1000);
         const elapsedAbs = Math.abs(elapsed);
         let measureAbs;
-
-        // Within the last 7 days...
-        //if (elapsedAbs < 60 * 60 * 24 * 7) {
 
         const measures = [];
         let remaining;
@@ -177,11 +190,6 @@ define([
             }
         } else if (elapsedAbs < 60 * 60 * 24) {
             measureAbs = Math.floor(elapsedAbs / 3600);
-            // measures.push([measureAbs, 'hour']);
-            // remaining = elapsedAbs - (measureAbs * 3600);
-            // if (remaining > 0) {
-            //     measures.push([remaining, 'minute']);
-            // }
             const remainingSeconds = elapsedAbs - (measureAbs * 3600);
             const remainingMinutes = Math.round(remainingSeconds/60);
             if (remainingMinutes === 60) {
@@ -337,7 +345,7 @@ define([
                 } else {
                     now = Date.now();
                 }
-                if (!startDate || !endDate) {
+                if (!startDate) {
                     formatted = missing;
                 } else {
                     switch (format) {
@@ -345,7 +353,7 @@ define([
                         formatted = niceTimeRange(moment(startDate).toDate(), moment(endDate).toDate());
                         break;
                     case 'nice-relative-range':
-                        formatted = niceRelativeTimeRange(moment(startDate).toDate(), moment(endDate).toDate(), now);
+                        formatted = niceRelativeTimeRange(startDate, endDate, now);
                         break;
                     default: formatted = 'invalid format: ' + format;
                     }
