@@ -20,20 +20,20 @@ define([
         a = t('a');
 
     const styles = html.makeStyles({
+        // component: {
+        //     flex: '1 1 0px',
+        //     display: 'flex',
+        //     flexDirection: 'column'
+        // },
         component: {
-            flex: '1 1 0px',
-            display: 'flex',
-            flexDirection: 'column'
-        },
-        header: {
-            flex: '0 0 50px'
-        },
-        body: {
             flex: '1 1 0px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'flex-start',
             minWidth: '40em'
+        },
+        header: {
+            flex: '0 0 50px'
         },
         headerRow: {
             flex: '0 0 35px',
@@ -179,15 +179,19 @@ define([
         constructor(params, componentInfo) {
             super(params);
 
+            const {table, messages} = params;
+
             this.componentInfo = componentInfo;
             this.slowLoadingThreshold = 300;
 
-            this.table = params.table;
+            this.table = table;
             this.rows = this.table.rows;
             this.columns = this.table.columns;
             this.state = this.table.state;
             this.actions = this.table.actions;
             this.env = this.table.env;
+
+            this.messages = messages;
 
             // calculate widths...
             this.totalWidth = this.columns.reduce((tw, column) => {
@@ -237,22 +241,8 @@ define([
                 }
 
                 const rowCount = Math.floor(newValue / this.rowHeight);
-
                 this.table.pageSize(rowCount);
             });
-
-            this.doRowAction = null;
-            if (this.table.rowAction) {
-                this.doRowAction = (data) => {
-                    if (this.table.rowAction) {
-                        this.table.rowAction(data);
-                    } else {
-                        console.warn('No row action...', this.table, data);
-                    }
-                };
-            } else {
-                this.doRowAction = null;
-            }
 
             this.isLoadingSlowly = ko.observable(false);
 
@@ -267,9 +257,15 @@ define([
                 }
             });
 
-
             // Calculate the height immediately upon component load
             this.height(this.calcHeight());
+
+        }
+
+        doRowAction(data, event, row) {
+            if (this.table.rowAction) {
+                this.table.rowAction(row);
+            }
         }
 
         /*
@@ -358,7 +354,7 @@ define([
             },
             class: [styles.classes.headerCell]
         }, [
-            gen.if('sort',
+            gen.if('column.sort',
                 div({
                     class: [styles.classes.innerSortCell]
                 }, [
@@ -402,8 +398,8 @@ define([
                         dataBind: {
                             text: 'column.label'
                         }
-                    }),
-                ])),
+                    })
+                ]))
         ]));
     }
 
@@ -622,7 +618,7 @@ define([
                         as: '"column"'
                     },
                     css: rowClass,
-                    click: '$component.doRowAction'
+                    click: '(d,e) => {$component.doRowAction.call($component, d, e, row)}'
                 },
                 class: styles.classes.itemRow
             }, [
@@ -690,53 +686,64 @@ define([
                         alignItems: 'center'
                     }
                 }, [
-                    ko.if('$component.isLoadingSlowly', html.loading())
+                    gen.if('$component.isLoadingSlowly', html.loading())
                 ])
             ]));
     }
 
     function buildNoActiveSearch() {
-        return div(
+        return div({
+            class: 'alert alert-info',
+            style: {
+                margin: '40px auto 0 auto',
+                maxWidth: '40em',
+                padding: '20px'
+            }
+        }, [
             gen.if('$component.isLoading',
                 p('Running your search! Going from Zero to Hero ... ' + html.loading()),
-                p('NO ACTIVE SEARCH - PLACEHOLDER')));
+                div({
+                    dataBind: {
+                        html: 'messages.none'
+                    }
+                }))
+        ]);
     }
 
     function buildNoResults() {
-        return div(
+        return div({
+            class: 'alert alert-warning',
+            style: {
+                margin: '40px auto 0 auto',
+                maxWidth: '40em',
+                padding: '20px'
+            }
+        }, [
             gen.if('$component.isLoading',
                 p('Running your search! Going from Zero to Hero ... ' + html.loading()),
-                p('NO RESULTS FROM SEARCH - PLACEHOLDER')));
+                div({
+                    dataBind: {
+                        html: 'messages.notfound'
+                    }
+                }))
+        ]);
     }
 
     function template() {
         return div({
-            class: styles.classes.body
+            class: styles.classes.component
         }, [
-            styles.sheet,
             buildResultsHeader(),
             div({
                 class: styles.classes.tableBody
             }, gen.switch('$component.state()', [
                 [
                     '"notfound"',
-                    div({
-                        style: {
-                            padding: '12px',
-                            backgroundColor: 'silver',
-                            textAlign: 'center'
-                        }
-                    }, buildNoResults())
+                    buildNoResults()
                 ],
                 [
                     '"none"',
-                    div({
-                        style: {
-                            padding: '12px',
-                            backgroundColor: 'silver',
-                            textAlign: 'center'
-                        }
-                    }, buildNoActiveSearch())
+                    buildNoActiveSearch()
                 ],
                 [
                     '$default',
@@ -763,9 +770,10 @@ define([
                     return new ViewModel(params, componentInfo);
                 }
             },
-            template: template()
+            template: template(),
+            stylesheet: styles.sheet
         };
     }
 
-    return ko.kb.registerComponent(component);
+    return reg.registerComponent(component);
 });

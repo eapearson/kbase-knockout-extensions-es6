@@ -3,7 +3,7 @@ define([], function () {
 
     // Utils
 
-    function objectToString(obj) {
+    function objectToParamsString(obj) {
         return [
             '{',
             Object.keys(obj).map((key) => {
@@ -13,6 +13,24 @@ define([], function () {
         ].join('');
     }
 
+    function arrayToParamsString(arr) {
+        return [
+            '{',
+            arr.map((key) => {
+                return key + ':' + key;
+            }).join(','),
+            '}'
+        ].join('');
+    }
+
+    function toParamsString(from) {
+        if (from instanceof Array) {
+            return arrayToParamsString(from);
+        } else {
+            return objectToParamsString(from);
+        }
+
+    }
     // Embeddable expressions
 
     function koIf(expression, markup, elseMarkup) {
@@ -57,7 +75,7 @@ define([], function () {
 
     function koForeach(expression, markup) {
         if (typeof expression === 'object') {
-            expression = objectToString(expression);
+            expression = objectToParamsString(expression);
         }
         return [
             '<!-- ko foreach: ' + expression + ' -->',
@@ -146,40 +164,28 @@ define([], function () {
         ];
     }
 
-
-
     function koComponent(componentDef) {
+        const params = toParamsString(componentDef.params);
         return [
             '<!-- ko component: {name: "',
             componentDef.name,
             '", params: ',
-            objectToString(componentDef.params),
+            params,
             '}--><!-- /ko -->'
         ];
     }
 
     return {
-        koIf,
         if: koIf,
-        koIfnot,
         ifnot: koIfnot,
-        koPlural,
         plural: koPlural,
-        koForeach,
         foreach: koForeach,
-        koForeachAs,
         foreachAs: koForeachAs,
-        koLet,
         let: koLet,
-        koWith,
         with: koWith,
-        koSwitch,
         switch: koSwitch,
-        koIfLet,
         ifLet: koIfLet,
-        koText,
         text: koText,
-        koComponent,
         component: koComponent
     };
 });
