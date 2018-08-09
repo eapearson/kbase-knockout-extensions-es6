@@ -51,6 +51,14 @@ define([], function () {
         ];
     }
 
+    function koWhen(expression, markup) {
+        return  [
+            '<!-- ko when: ' + expression + ' -->',
+            markup,
+            '<!-- /ko -->'
+        ];
+    }
+
     function koIfnot(expression, markup, elseMarkup) {
         if (!elseMarkup) {
             return  [
@@ -175,6 +183,17 @@ define([], function () {
         ];
     }
 
+    function koComponent2(componentDef) {
+        const params = toParamsString(componentDef.params);
+        return [
+            '<!-- ko component: {name: ',
+            componentDef.name,
+            ', params: ',
+            params,
+            '}--><!-- /ko -->'
+        ];
+    }
+
     return {
         if: koIf,
         ifnot: koIfnot,
@@ -186,6 +205,8 @@ define([], function () {
         switch: koSwitch,
         ifLet: koIfLet,
         text: koText,
-        component: koComponent
+        component: koComponent,
+        component2: koComponent2,
+        when: koWhen
     };
 });

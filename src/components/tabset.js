@@ -24,6 +24,8 @@ define([
         constructor(params) {
             super(params);
 
+            const {tabs} = params;
+
             this.tabsetId = html.genId();
             this.tabs = ko.observableArray();
             this.tabClasses = ko.observableArray(['nav', 'nav-tabs']);
@@ -42,8 +44,8 @@ define([
 
             // Initialize Tabs
 
-            if (params.tabs) {
-                params.tabs.forEach((tab) => {
+            if (tabs) {
+                tabs.forEach((tab) => {
                     this.tabs.push(this.makeTab(tab));
                 });
             }
@@ -109,8 +111,8 @@ define([
                     content: params.panel.content
                 },
                 // component: params.component,
-                content: params.content,
-                active: ko.observable(false),
+                // content: params.content,
+                active: ko.observable(params.active || false),
                 closable: ko.observable(params.closable || false)
             };
         }
@@ -139,8 +141,6 @@ define([
             this.deactivateCurrentTab();
             this.activateTab(tab);
         }
-
-
     }
 
     function buildTab() {
@@ -171,7 +171,7 @@ define([
                         text: 'tab.label'
                     }
                 }),
-                gen.koIf('tab.component',
+                gen.if('tab.component',
                     span({
                         dataBind: {
                             component: {
@@ -181,7 +181,7 @@ define([
                         },
                         dataKBTesthookButton: 'tab'
                     })),
-                gen.koIf('$parent.closable',
+                gen.if('$parent.closable',
                     span({
                         class: styles.classes.tabButton,
                         dataBind: {
@@ -195,7 +195,7 @@ define([
     }
 
     function buildTabPanel() {
-        return gen.koIf('active',
+        return gen.if('active',
             div({
                 dataBind: {
                     attr: {
@@ -209,7 +209,7 @@ define([
                 },
                 class: [styles.classes.tabPane, 'fade'],
                 role: 'tabpanel'
-            }, gen.koIf('$data.component',
+            }, gen.if('$data.component',
                 div({
                     style: {
                         flex: '1 1 0px',
@@ -223,7 +223,7 @@ define([
                         }
                     }
                 }),
-                gen.koIf('$data.content',
+                gen.if('$data.content',
                     div({
                         style: {
                             flex: '1 1 0px',
@@ -248,7 +248,7 @@ define([
         tabSet: {
             css: {
                 borderBottom: '1px solid #ddd',
-                flex: '0 0 50px',
+                // flex: '0 0 50px',
                 paddingLeft: '0',
                 marginBottom: '0',
                 listStyle: 'none'

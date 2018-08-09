@@ -26,7 +26,7 @@ define([
         div = t('div');
 
     class ViewModel extends ViewModelBase {
-        constructor(params) {
+        constructor(params, context, element) {
             super(params);
 
             this.showPanel = ko.observable();
@@ -109,6 +109,12 @@ define([
                     if (this.showPanel()) {
                         this.bus.send('close');
                     }
+                }
+            });
+
+            document.body.addEventListener('keyup', (ev) => {
+                if (ev.key === 'Escape') {
+                    this.bus.send('close');
                 }
             });
         }
@@ -313,7 +319,7 @@ define([
 
     function component() {
         return {
-            viewModel: ViewModel,
+            viewModelWithContext: ViewModel,
             template: template()
         };
     }

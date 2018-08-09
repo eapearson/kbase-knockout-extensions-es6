@@ -17,6 +17,7 @@ define([
                 'knockout-arraytransforms',
                 'knockout-validation',
                 'knockout-switch-case',
+                'knockout-projections',
 
                 // This one we have tweaked.
                 './ko/knockout-es6-collections',
