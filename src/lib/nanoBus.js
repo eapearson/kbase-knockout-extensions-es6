@@ -6,10 +6,12 @@ define([], function () {
     const SCHEDULED = Symbol();
 
     class NanoBus {
-        constructor() {
+        constructor({link} = {}) {
             this.queue = [];
             this.runInterval = 0;
             this.messageReceivers = {};
+
+            this.link = link;
 
             this.state = READY;
         }
@@ -20,6 +22,9 @@ define([], function () {
             processing.forEach((message) => {
                 const receivers = this.messageReceivers[message.id];
                 if (!receivers) {
+                    if (this.link) {
+                        this.link.send(message.id, message.payload);
+                    }
                     return;
                 }
                 receivers.forEach((receiver) => {

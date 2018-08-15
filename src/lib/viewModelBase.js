@@ -18,7 +18,9 @@ define([
             // E.g. passing in a ko in the constructor?
             this.observable = ko.observable;
             this.observableArray = ko.observableArray;
-            this.bus = new NanoBus();
+            this.bus = new NanoBus({
+                link: params.bus || params.link
+            });
 
             this.parentBus = params.bus;
         }

@@ -26,7 +26,7 @@ define([
         div = t('div');
 
     class ViewModel extends ViewModelBase {
-        constructor(params, context, element) {
+        constructor(params) {
             super(params);
 
             this.showPanel = ko.observable();
@@ -42,34 +42,6 @@ define([
             });
 
             this.component = params.component;
-
-            this.bus.on('clear', () => {
-                this.component(null);
-                this.embeddedComponentName(null);
-            });
-
-            this.bus.on('open', (message) => {
-                if (this.showPanel()) {
-                    this.bus.send('close', {open: message});
-                    return;
-                }
-
-                this.showPanel(true);
-                this.embeddedComponentName(message.name);
-
-                this.embeddedParams('{' + Object.keys(message.params || {}).map((key) => {
-                    return key + ':' + message.params[key];
-                }).join(', ') + '}');
-
-                const newVm = Object.keys(message.viewModel).reduce((accum, key) => {
-                    accum[key] = message.viewModel[key];
-                    return accum;
-                }, {});
-                newVm.onClose = () => {
-                    this.doClose;
-                };
-                this.embeddedViewModel(newVm);
-            });
 
             this.panelStyle = ko.pureComputed(() => {
                 if (this.showPanel() === undefined) {
@@ -100,7 +72,7 @@ define([
             this.embeddedParams = ko.observable();
             this.embeddedViewModel = ko.observable({});
 
-            this.embeddedParams.onClose = 'doClose';
+            // this.embeddedParams.onClose = 'doClose';
 
             this.subscribe(this.component, (newValue) => {
                 if (newValue) {
@@ -116,6 +88,39 @@ define([
                 if (ev.key === 'Escape') {
                     this.bus.send('close');
                 }
+            });
+
+            // bus messages
+            this.bus.on('clear', () => {
+                this.component(null);
+                this.embeddedComponentName(null);
+            });
+
+            this.bus.on('open', (message) => {
+                if (this.showPanel()) {
+                    this.bus.send('close', {open: message});
+                    return;
+                }
+
+                this.showPanel(true);
+                this.embeddedComponentName(message.name);
+
+                this.embeddedParams('{' + Object.keys(message.params || {}).map((key) => {
+                    return key + ':' + message.params[key];
+                }).join(', ') + '}');
+
+                this.embeddedParams.link = 'link';
+
+                const newVm = Object.keys(message.viewModel).reduce((accum, key) => {
+                    accum[key] = message.viewModel[key];
+                    return accum;
+                }, {});
+                newVm.onClose = () => {
+                    this.bus.send('close');
+                };
+                // links the sub-component bus to the overlay panel's bus.
+                newVm.link = this.bus;
+                this.embeddedViewModel(newVm);
             });
         }
 
@@ -319,7 +324,7 @@ define([
 
     function component() {
         return {
-            viewModelWithContext: ViewModel,
+            viewModel: ViewModel,
             template: template()
         };
     }
