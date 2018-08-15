@@ -3,28 +3,24 @@ define([
     '../registry',
     '../lib/generators',
     '../lib/viewModelBase',
-    'kb_common/html'
+    'kb_common/html',
+    './table/message'
 ], function (
     ko,
     reg,
     gen,
     ViewModelBase,
-    html
+    html,
+    MessageComponent
 ) {
     'use strict';
 
     const t = html.tag,
         div = t('div'),
         span = t('span'),
-        p = t('p'),
         a = t('a');
 
     const styles = html.makeStyles({
-        // component: {
-        //     flex: '1 1 0px',
-        //     display: 'flex',
-        //     flexDirection: 'column'
-        // },
         component: {
             flex: '1 1 0px',
             display: 'flex',
@@ -176,12 +172,13 @@ define([
     });
 
     class ViewModel extends ViewModelBase {
-        constructor(params, componentInfo) {
+        constructor(params, _context, element) {
             super(params);
 
             const {table, messages} = params;
 
-            this.componentInfo = componentInfo;
+
+            this.element = element;
             this.slowLoadingThreshold = 300;
 
             this.table = table;
@@ -281,7 +278,7 @@ define([
         }
 
         calcHeight() {
-            return this.componentInfo.element.querySelector('.' + styles.classes.tableBody).clientHeight;
+            return this.element.querySelector('.' + styles.classes.tableBody).clientHeight;
         }
 
         doOpenUrl(data) {
@@ -691,42 +688,25 @@ define([
             ]));
     }
 
-    function buildNoActiveSearch() {
-        return div({
-            class: 'alert alert-info',
-            style: {
-                margin: '40px auto 0 auto',
-                maxWidth: '40em',
-                padding: '20px'
-            }
-        }, [
-            gen.if('$component.isLoading',
-                p('Running your search! Going from Zero to Hero ... ' + html.loading()),
-                div({
-                    dataBind: {
-                        html: 'messages.none'
+    function buildMessage(type, message) {
+        return gen.if('typeof messages.' + message + ' === "string"',
+            gen.component({
+                name: MessageComponent.name(),
+                params: {
+                    type: '"' + type + '"',
+                    message: 'messages.' + message
+                }
+            }),
+            div({
+                dataBind: {
+                    component: {
+                        name: 'messages.' + message + '.component.name',
+                        params: {
+                            bus: '$component.bus'
+                        }
                     }
-                }))
-        ]);
-    }
-
-    function buildNoResults() {
-        return div({
-            class: 'alert alert-warning',
-            style: {
-                margin: '40px auto 0 auto',
-                maxWidth: '40em',
-                padding: '20px'
-            }
-        }, [
-            gen.if('$component.isLoading',
-                p('Running your search! Going from Zero to Hero ... ' + html.loading()),
-                div({
-                    dataBind: {
-                        html: 'messages.notfound'
-                    }
-                }))
-        ]);
+                }
+            }));
     }
 
     function template() {
@@ -739,11 +719,15 @@ define([
             }, gen.switch('$component.state()', [
                 [
                     '"notfound"',
-                    buildNoResults()
+                    buildMessage('warning', 'notfound')
                 ],
                 [
                     '"none"',
-                    buildNoActiveSearch()
+                    buildMessage('info', 'none')
+                ],
+                [
+                    '"error"',
+                    buildMessage('danger', 'error')
                 ],
                 [
                     '$default',
@@ -765,11 +749,7 @@ define([
 
     function component() {
         return {
-            viewModel: {
-                createViewModel: (params, componentInfo) => {
-                    return new ViewModel(params, componentInfo);
-                }
-            },
+            viewModelWithContext: ViewModel,
             template: template(),
             stylesheet: styles.sheet
         };
