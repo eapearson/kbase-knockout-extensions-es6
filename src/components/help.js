@@ -25,6 +25,8 @@ define([
 
             this.helpDb = params.helpDb;
             this.topics = this.helpDb.topics;
+            this.references = params.helpDb.references;
+
             this.topicsIndex = {};
             this.helpDb.topics.forEach((topic) => {
                 this.topicsIndex[topic.id] = topic;
@@ -64,19 +66,19 @@ define([
                 }
             },
             indexList: {
-                css: {                    
+                css: {
                     listStyle: 'none',
                     padding: '0'
                 }
             },
             indexListItem: {
-                css: {                    
+                css: {
                     display: 'block',
                     padding: '4px'
                 }
             },
             indexListItemLink: {
-                css: {                                        
+                css: {
                     padding: '4px',
                     display: 'block'
                 },
@@ -111,7 +113,7 @@ define([
             },
             markdown: {
                 css: {
-    
+
                 },
                 inner: {
                     blockquote: {
@@ -208,7 +210,7 @@ define([
                     class: styles.classes.markdown
                 })
             ]),
-            gen.if('$data.references && references.length > 0', 
+            gen.if('$data.references && references.length > 0',
                 div({
                     class: styles.classes.references
                 }, [
@@ -225,7 +227,7 @@ define([
                                 href: 'url',
                                 target: 'external ? "_blank" : ""'
                             },
-                            text: 'title'
+                            text: 'title || url'
                         }
                     })))
                 ]))
