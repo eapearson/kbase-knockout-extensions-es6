@@ -702,7 +702,8 @@ define([
                     component: {
                         name: 'messages.' + message + '.component.name',
                         params: {
-                            bus: '$component.bus'
+                            bus: '$component.bus',
+                            table: '$component.table'
                         }
                     }
                 }
