@@ -149,6 +149,10 @@ define([], function () {
         ];
     }
 
+    function koIfWith(identifier, markup) {
+        return koIf(identifier, koWith(identifier, markup));
+    }
+
     function koSwitch(condition, cases) {
         return [
             '<!-- ko switch: ' + condition + ' -->',
@@ -207,6 +211,7 @@ define([], function () {
         text: koText,
         component: koComponent,
         component2: koComponent2,
-        when: koWhen
+        when: koWhen,
+        ifWith: koIfWith
     };
 });
