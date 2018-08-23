@@ -24,8 +24,9 @@ define([
         constructor(params) {
             super(params);
 
-            const {tabs} = params;
-
+            const {tabs, tabContext} = params;
+            // console.log('tab context?', tabContext);
+            this.tabContext = tabContext;
             this.tabsetId = html.genId();
             this.tabs = ko.observableArray();
             this.tabClasses = ko.observableArray(['nav', 'nav-tabs']);
@@ -99,15 +100,31 @@ define([
             //     params.panel.component.params = {};
             // }
             // params.component.params = params;
+            let tabComponent;
+            if (params.tab.component) {
+                tabComponent = {
+                    name: params.tab.component.name,
+                    params: params.tab.component.params,
+                    stringifiedParams: this.paramsToString(params.tab.component.params)
+                };
+            }
+            let panelComponent;
+            if (params.panel.component) {
+                panelComponent = {
+                    name: params.panel.component.name,
+                    params: params.panel.component.params,
+                    stringifiedParams: this.paramsToString(params.panel.component.params)
+                };
+            }
             return {
                 id: params.id,
                 tab: {
                     label: params.tab.label,
-                    component: params.tab.component
+                    component: tabComponent
                 },
                 // label: params.tab.label,
                 panel: {
-                    component: params.panel.component,
+                    component: panelComponent,
                     content: params.panel.content
                 },
                 // component: params.component,
@@ -115,6 +132,13 @@ define([
                 active: ko.observable(params.active || false),
                 closable: ko.observable(params.closable || false)
             };
+        }
+
+        paramsToString(params) {
+            // return params;
+            return '{' + Object.keys(params).map((key) => {
+                return key + ':' + params[key];
+            }) + '}';
         }
 
         addTab(tab, activate) {
@@ -139,6 +163,7 @@ define([
 
         doSelectTab(tab) {
             this.deactivateCurrentTab();
+            // console.log('selected tab?', tab);
             this.activateTab(tab);
         }
     }
@@ -149,18 +174,18 @@ define([
             class: styles.classes.tab,
             dataBind: {
                 css: {
-                    active: 'active'
+                    active: 'tab.active'
                 }
             }
         }, [
             a({
                 dataBind: {
-                    click: 'function (d, e) {$component.doSelectTab.call($component, d, e);}',
+                    click: 'function (d, e) {$component.doSelectTab.call($component, tab);}',
                     // with: 'tab',
                     attr: {
-                        'data-k-b-testhook-tab': 'id'
+                        'data-k-b-testhook-tab': 'tab.id'
                     },
-                    class: 'active() ? "' + styles.classes.tabLinkActive + '": ""'
+                    class: 'tab.active() ? "' + styles.classes.tabLinkActive + '": ""'
 
                 },
                 role: 'tab',
@@ -168,20 +193,21 @@ define([
             }, [
                 span({
                     dataBind: {
-                        text: 'tab.label'
+                        text: 'tab.tab.label'
                     }
                 }),
-                gen.if('tab.component',
-                    span({
-                        dataBind: {
-                            component: {
-                                name: 'tab.component.name',
-                                params: 'tab.component.params'
-                            }
-                        },
-                        dataKBTesthookButton: 'tab'
-                    })),
-                gen.if('$parent.closable',
+                gen.if('tab.tab.component',
+                    gen.with('$component.tabContext',
+                        span({
+                            dataBind: {
+                                component: {
+                                    name: 'tab.tab.component.name',
+                                    params: 'function(){return eval("[" + tab.tab.component.stringifiedParams + "][0]");}()'
+                                }
+                            },
+                            dataKBTesthookButton: 'tab'
+                        }))),
+                gen.if('tab.closable',
                     span({
                         class: styles.classes.tabButton,
                         dataBind: {
@@ -195,35 +221,21 @@ define([
     }
 
     function buildTabPanel() {
-        return gen.if('active',
+        return gen.if('tab.active',
             div({
                 dataBind: {
                     attr: {
-                        active: 'active'
+                        active: 'tab.active'
                     },
                     css: {
-                        in: 'active',
-                        active: 'active'
-                    },
-                    with: 'panel'
+                        in: 'tab.active',
+                        active: 'tab.active'
+                    }
                 },
                 class: [styles.classes.tabPane, 'fade'],
                 role: 'tabpanel'
-            }, gen.if('$data.component',
-                div({
-                    style: {
-                        flex: '1 1 0px',
-                        display: 'flex',
-                        flexDirection: 'column'
-                    },
-                    dataBind: {
-                        component: {
-                            name: 'component.name',
-                            params: 'component.params'
-                        }
-                    }
-                }),
-                gen.if('$data.content',
+            }, gen.if('tab.panel.component',
+                gen.with('$component.tabContext',
                     div({
                         style: {
                             flex: '1 1 0px',
@@ -231,7 +243,21 @@ define([
                             flexDirection: 'column'
                         },
                         dataBind: {
-                            html: '$data.content'
+                            component: {
+                                name: 'tab.panel.component.name',
+                                params: 'function(){return eval("[" + tab.panel.component.stringifiedParams + "][0]");}()'
+                            }
+                        }
+                    })),
+                gen.if('tab.panel.content',
+                    div({
+                        style: {
+                            flex: '1 1 0px',
+                            display: 'flex',
+                            flexDirection: 'column'
+                        },
+                        dataBind: {
+                            html: 'tab.panel.content'
                         }
                     }),
                     div('** NO CONTENT **')))));
@@ -352,13 +378,16 @@ define([
             dataKBTesthookComponent: 'tabset'
         }, [
             ul({
+                class: styles.classes.tabSet,
                 dataBind: {
                     attr: {
                         id: 'tabsetId'
                     },
-                    foreach: 'tabs'
+                    foreach: {
+                        data: 'tabs',
+                        as: '"tab"'
+                    }
                 },
-                class: styles.classes.tabSet,
                 role: 'tablist'
             }, buildTab()),
             div({
@@ -367,7 +396,10 @@ define([
                     position: 'relative'
                 },
                 dataBind: {
-                    foreach: 'tabs'
+                    foreach: {
+                        data: 'tabs',
+                        as: '"tab"'
+                    }
                 }
             },  buildTabPanel())
         ]);
