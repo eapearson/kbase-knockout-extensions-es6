@@ -370,10 +370,21 @@ define([
                     valueUnwrapped = defaultValue;
                 }
 
-                if (valueUnwrapped) {
-                    formatted = 'true';
+                var booleanLabels;
+                if (format) {
+                    if (typeof format === 'string') {
+                        booleanLabels = format.split(',');
+                    } else {
+                        booleanLabels = format;
+                    }
                 } else {
-                    formatted = 'false';
+                    booleanLabels = ['true', 'false'];
+                }
+
+                if (valueUnwrapped) {
+                    formatted = booleanLabels[0];
+                } else {
+                    formatted = booleanLabels[1];
                 }
 
                 break;
