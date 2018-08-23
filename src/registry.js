@@ -43,7 +43,7 @@ define([
             if (component.viewModelWithContext) {
                 const viewModelFactory = function (params, componentInfo) {
                     const context = ko.contextFor(componentInfo.element);
-                    return new component.viewModelWithContext(params, context, componentInfo.element, componentInfo);
+                    return new component.viewModelWithContext(params, context, componentInfo.element, componentInfo, name);
                 };
                 componentToRegister = {
                     viewModel: {
