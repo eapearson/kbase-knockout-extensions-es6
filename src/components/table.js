@@ -260,8 +260,8 @@ define([
         }
 
         doRowAction(data, event, row) {
-            if (this.table.rowAction) {
-                this.table.rowAction(row);
+            if (this.table.rowAction && row.mode !== 'inaccessible') {
+                this.table.rowAction(row.data);
             }
         }
 
@@ -401,62 +401,72 @@ define([
     }
 
     function buildColValue() {
-        return gen.if('row[column.name].action',
+        return gen.if('row.data[column.name].action',
             span({
                 dataBind: {
                     typedText: {
-                        value: 'row[column.name].value',
+                        value: 'row.data[column.name].value',
                         type: 'column.type',
                         format: 'column.format',
                         click: '$component[rowl[column.name].action]'
                     },
                     attr: {
-                        title: 'row[column.name].info'
+                        title: 'row.data[column.name].info'
                     }
                 }
             }),
-            gen.if('row[column.name].url',
+            gen.if('row.data[column.name].url',
                 a({
                     dataBind: {
                         typedText: {
-                            value: 'row[column.name].value',
+                            value: 'row.data[column.name].value',
                             type: 'column.type',
                             format: 'column.format'
                         },
                         attr: {
-                            title: 'row[column.name].info'
+                            title: 'row.data[column.name].info'
                         },
-                        click: 'function () {$component.doOpenUrl(row[column.name]);}',
+                        click: 'function () {$component.doOpenUrl(row.data[column.name]);}',
                         clickBubble: 'false'
                     }
                 }),
                 span({
                     dataBind: {
                         typedText: {
-                            value: 'row[column.name].value',
+                            value: 'row.data[column.name].value',
                             type: 'column.type',
                             format: 'column.format'
                         },
                         attr: {
-                            title: 'row[column.name].info'
+                            title: 'row.data[column.name].info'
                         }
                     }
                 })));
     }
 
+    function buildEmptyCol() {
+        return div({
+            style: {
+                backgroundColor: 'silver',
+                flex: '1 1 0px',
+                height: '100%'
+            }
+        });
+    }
+
     function  buildActionFnCol() {
-        return gen.if('row[column.name]',
+        return gen.if('row.data[column.name]',
             a({
                 dataBind: {
                     typedText: {
-                        value: 'row[column.name].value',
+                        value: 'row.data[column.name].value',
                         type: 'column.type',
                         format: 'column.format'
                     },
-                    click: 'function () {column.action.fn(row[column.name], row);}',
+                    click: 'function () {column.action.fn(row.data[column.name], row);}',
                     clickBubble: false,
                     attr: {
-                        title: 'row[column.name].info'
+                        title: 'row.data[column.name].info'
                     }
                 },
                 style: {
@@ -491,18 +501,18 @@ define([
     }
 
     function  buildActionNameCol() {
-        return gen.if('row[column.name]',
+        return gen.if('row.data[column.name]',
             a({
                 dataBind: {
                     typedText: {
-                        value: 'row[column.name].value',
+                        value: 'row.data[column.name].value',
                         type: 'column.type',
                         format: 'column.format'
                     },
-                    click: 'function () {$component.actions[column.action.name]({row: row, col: row[column.name]});}',
+                    click: 'function () {$component.actions[column.action.name]({row: row, col: row.data[column.name]});}',
                     clickBubble: false,
                     attr: {
-                        title: 'row[column.name].info'
+                        title: 'row.data[column.name].info'
                     }
                 },
                 style: {
@@ -534,20 +544,20 @@ define([
     }
 
     function  buildActionLinkCol() {
-        return gen.if('row[column.name]',
-            gen.if('row[column.name].url',
+        return gen.if('row.data[column.name]',
+            gen.if('row.data[column.name].url',
                 a({
                     dataBind: {
                         typedText: {
-                            value: 'row[column.name].value',
+                            value: 'row.data[column.name].value',
                             type: 'column.type',
                             format: 'column.format'
                         },
-                        click: 'function () {$component.openLink(row[column.name].url);}',
+                        click: 'function () {$component.openLink(row.data[column.name].url);}',
                         // click: 'function () {column.action.fn(row[column.name], row);}',
                         clickBubble: false,
                         attr: {
-                            title: 'row[column.name].info'
+                            title: 'row.data[column.name].info'
                         }
                     },
                     style: {
@@ -557,12 +567,12 @@ define([
                 span({
                     dataBind: {
                         typedText: {
-                            value: 'row[column.name].value',
+                            value: 'row.data[column.name].value',
                             type: 'column.type',
                             format: 'column.format'
                         },
                         attr: {
-                            title: 'row[column.name].info'
+                            title: 'row.data[column.name].info'
                         }
                     }
                 })),
@@ -584,7 +594,7 @@ define([
                 a({
                     dataBind: {
                         css: 'column.action.icon',
-                        click: 'function () {$module.openLink(row[column.name], row);}',
+                        click: 'function () {$module.openLink(row.data[column.name], row);}',
                         clickBubble: false,
                         // attr: {
                         //     title: 'row[column.name].info'
@@ -624,36 +634,37 @@ define([
                         style: 'column.rowStyle'
                     },
                     class: [styles.classes.cell]
-                },  div({
-                    class: [styles.classes.innerCell]
-                }, [
-                    // ACTION COLUMN
-                    gen.if('column.action', [
-                        gen.if('column.action.fn', buildActionFnCol()),
-                        gen.if('column.action.name', buildActionNameCol()),
-                        gen.if('column.action.link', buildActionLinkCol())
-                    ],
-                    gen.if('column.component',
-                        div({
-                            dataBind: {
-                                component: {
-                                    name: 'column.component',
-                                    params: {
-                                        field: 'row[column.name]',
-                                        row: 'row',
-                                        env: '$component.env'
+                }, gen.if('row.mode === "inaccessible"',
+                    buildEmptyCol(),
+                    div({
+                        class: [styles.classes.innerCell]
+                    }, [
+                        gen.if('column.action', [
+                            gen.if('column.action.fn', buildActionFnCol()),
+                            gen.if('column.action.name', buildActionNameCol()),
+                            gen.if('column.action.link', buildActionLinkCol())
+                        ],
+                        gen.if('column.component',
+                            div({
+                                dataBind: {
+                                    component: {
+                                        name: 'column.component',
+                                        params: {
+                                            field: 'row.data[column.name]',
+                                            row: 'row.data',
+                                            env: '$component.env'
+                                        }
                                     }
+                                    // text: 'column.component'
+                                },
+                                style: {
+                                    flex: '1 1 0px',
+                                    display: 'flex',
+                                    flexDirection: 'column'
                                 }
-                                // text: 'column.component'
-                            },
-                            style: {
-                                flex: '1 1 0px',
-                                display: 'flex',
-                                flexDirection: 'column'
-                            }
-                        }),
-                        gen.if('row[column.name]', buildColValue())))
-                ]))
+                            }),
+                            gen.if('row.data[column.name]', buildColValue())))
+                    ])))
             ])
         ]);
     }
