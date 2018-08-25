@@ -3,7 +3,8 @@ define([
     '../registry',
     '../lib/generators',
     '../lib/viewModelBase',
-    'kb_common/html',
+    'kb_lib/html',
+    'kb_lib/htmlBuilders',
     './table/message'
 ], function (
     ko,
@@ -11,6 +12,7 @@ define([
     gen,
     ViewModelBase,
     html,
+    build,
     MessageComponent
 ) {
     'use strict';
@@ -694,7 +696,7 @@ define([
                         alignItems: 'center'
                     }
                 }, [
-                    gen.if('$component.isLoadingSlowly', html.loading())
+                    gen.if('$component.isLoadingSlowly', build.loading())
                 ])
             ]));
     }

@@ -3,18 +3,15 @@ define([
     'numeral',
     'moment',
     'marked',
-    'kb_common/utils'
+    'kb_lib/time'
 ], function (
     ko,
     numeral,
     moment,
     marked,
-    Utils
+    time
 ) {
     'use strict';
-
-    const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const shortDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
     ko.bindingHandlers.htmlMarkdown = {
         update: function (element, valueAccessor) {
@@ -266,9 +263,9 @@ define([
         }
         let day = '';
         if (options && options.showDay) {
-            day = shortDays[date.getDay()] + ' ';
+            day = time.shortDays[date.getDay()] + ' ';
         }
-        return day + shortMonths[date.getMonth()] + ' ' + date.getDate() + year;
+        return day + time.shortMonths[date.getMonth()] + ' ' + date.getDate() + year;
     }
 
     function niceTimeRange(from, to, options) {
@@ -326,7 +323,7 @@ define([
                     switch (format) {
                     case 'elapsed':
                     case 'nice-elapsed':
-                        formatted = Utils.niceElapsedTime(moment(valueUnwrapped).toDate());
+                        formatted = time.niceElapsedTime(moment(valueUnwrapped).toDate());
                         break;
                     case 'duration':
                         // formatted = Utils.niceElapsedTime(moment(valueUnwrapped).toDate());

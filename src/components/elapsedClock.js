@@ -1,7 +1,7 @@
 define([
     'knockout',
     '../registry',
-    'kb_common/html',
+    'kb_lib/html',
     '../lib/clock',
     '../lib/viewModelBase'
 ], function (

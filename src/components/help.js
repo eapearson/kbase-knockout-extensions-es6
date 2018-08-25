@@ -3,7 +3,7 @@ define([
     '../registry',
     '../lib/generators',
     '../lib/viewModelBase',
-    'kb_common/html'
+    'kb_lib/html'
 ], function (
     ko,
     reg,

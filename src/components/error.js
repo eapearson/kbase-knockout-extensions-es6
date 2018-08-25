@@ -2,14 +2,14 @@ define([
     'knockout',
     '../registry',
     '../lib/generators',
-    'kb_common/html',
-    'kb_common/bootstrapUtils'
+    'kb_lib/html',
+    'kb_lib/htmlBootstrapBuilders'
 ], function (
     ko,
     reg,
     gen,
     html,
-    BS
+    buildBS
 ) {
     'use strict';
 
@@ -22,7 +22,7 @@ define([
 
             const info = ko.unwrap(params.info);
             if (info !== undefined) {
-                this.info = BS.buildPresentableJson(info);
+                this.info = buildBS.buildPresentableJson(info);
             }
             this.source = params.source;
             this.code = params.code;
@@ -34,7 +34,7 @@ define([
 
     function template() {
         return div([
-            BS.buildPanel({
+            buildBS.buildPanel({
                 name: 'message',
                 class: 'kb-panel-light',
                 title: 'Message',
@@ -46,7 +46,7 @@ define([
                 })
             }),
             gen.if('source',
-                BS.buildPanel({
+                buildBS.buildPanel({
                     name: 'source',
                     class: 'kb-panel-light',
                     title: 'Source',
@@ -58,7 +58,7 @@ define([
                     })
                 })),
             gen.if('code',
-                BS.buildPanel({
+                buildBS.buildPanel({
                     name: 'code',
                     class: 'kb-panel-light',
                     title: 'Code',
@@ -70,7 +70,7 @@ define([
                     })
                 })),
             gen.if('$data.detail',
-                BS.buildCollapsiblePanel({
+                buildBS.buildCollapsiblePanel({
                     name: 'detail',
                     title: 'Detail',
                     type: 'danger',
@@ -84,7 +84,7 @@ define([
                     })
                 })),
             gen.if('$data.info',
-                BS.buildCollapsiblePanel({
+                buildBS.buildCollapsiblePanel({
                     name: 'info',
                     title: 'Info',
                     type: 'danger',
@@ -102,7 +102,7 @@ define([
                     }))
                 })),
             gen.if('$data.stackTrace',
-                BS.buildCollapsiblePanel({
+                buildBS.buildCollapsiblePanel({
                     name: 'stackTrace',
                     title: 'Stack Trace',
                     type: 'danger',

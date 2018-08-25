@@ -1,7 +1,7 @@
 define([
     'knockout',
     'numeral',
-    'kb_common/html',
+    'kb_lib/html',
     '../registry',
     '../lib/generators',
 
