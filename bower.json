@@ -16,7 +16,7 @@
       "test"
     ],
     "dependencies": {
-      "kbase-common-es6": "^2.15.2",
+      "kbase-common-es6": "^0.8.0",
       "knockout": "^3.5.0-rc",
       "knockout-arraytransforms": "^2.1.1",
       "knockout-switch-case": "^2.1.0",
