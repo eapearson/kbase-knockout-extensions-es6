@@ -9,7 +9,14 @@ define([
 ) {
     'use strict';
 
-    function load() {
+    // ko.options.deferUpdates = true;
+
+    function load({deferUpdates}) {
+        if (deferUpdates) {
+            ko.options.deferUpdates = true;
+        } else {
+            ko.options.deferUpdates = false;
+        }
         return new Promise((resolve, reject) => {
             require([
                 // load 3rd party extensions
