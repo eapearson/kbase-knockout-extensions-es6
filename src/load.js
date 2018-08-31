@@ -11,7 +11,7 @@ define([
 
     // ko.options.deferUpdates = true;
 
-    function load({deferUpdates}) {
+    function load({deferUpdates} = {}) {
         if (deferUpdates) {
             ko.options.deferUpdates = true;
         } else {
