@@ -44,7 +44,19 @@ define([], function () {
             if (this.queue.length === 0) {
                 return;
             }
-            window.requestAnimationFrame(() => {
+            // window.requestAnimationFrame(() => {
+            //     if (this.state === STOPPED) {
+            //         return;
+            //     }
+            //     this.state = READY;
+            //     this.processQueue();
+            //     // just in case any new messages crept in.
+            //     if (this.queue.length > 0) {
+            //         this.run();
+            //     }
+            // });
+
+            window.setTimeout(() => {
                 if (this.state === STOPPED) {
                     return;
                 }
@@ -54,7 +66,8 @@ define([], function () {
                 if (this.queue.length > 0) {
                     this.run();
                 }
-            });
+            }, 0);
+
             this.state = SCHEDULED;
         }
 
