@@ -1,9 +1,9 @@
 define([
-    'knockout',
+    // 'knockout',
     './subscriptionManager',
     './nanoBus'
 ], function (
-    ko,
+    // ko,
     SubscriptionManager,
     NanoBus
 ) {
@@ -16,8 +16,8 @@ define([
             // is this kosher? Maybe a better way of tying in
             // functionality to the current knockout system?
             // E.g. passing in a ko in the constructor?
-            this.observable = ko.observable;
-            this.observableArray = ko.observableArray;
+            // this.observable = ko.observable;
+            // this.observableArray = ko.observableArray;
             this.bus = new NanoBus({
                 link: params.bus || params.link
             });
