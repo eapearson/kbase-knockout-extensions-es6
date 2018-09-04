@@ -174,18 +174,17 @@ define([
             class: styles.classes.tab,
             dataBind: {
                 css: {
-                    active: 'tab.active'
+                    active: 'active'
                 }
             }
         }, [
             a({
                 dataBind: {
-                    click: 'function (d, e) {$component.doSelectTab.call($component, tab);}',
-                    // with: 'tab',
+                    click: 'function (d, e) {$component.doSelectTab.call($component, d);}',
                     attr: {
                         'data-k-b-testhook-tab': 'tab.id'
                     },
-                    class: 'tab.active() ? "' + styles.classes.tabLinkActive + '": ""'
+                    class: 'active() ? "' + styles.classes.tabLinkActive + '": ""'
 
                 },
                 role: 'tab',
@@ -193,21 +192,29 @@ define([
             }, [
                 span({
                     dataBind: {
-                        text: 'tab.tab.label'
+                        text: 'tab.label'
                     }
                 }),
-                gen.if('tab.tab.component',
-                    gen.with('$component.tabContext',
+                gen.if('tab.component',
+                    // use 'let' here because otherwise the 'with' sets the context completely to
+                    // the tabContext (which we want for the tab component), but we need the
+                    // tab still to be available (and a let is guaranteed to be propagated to
+                    // inner contexts.)
+                    // TODO: since 'tab' may interfere with a 'tab' property of the tabContext,
+                    // we should really generate a unique identifier. Still __ should protect us.
+                    gen.let({
+                        __tab: 'tab'
+                    }, gen.with('$component.tabContext',
                         span({
                             dataBind: {
                                 component: {
-                                    name: 'tab.tab.component.name',
-                                    params: 'function(){return eval("[" + tab.tab.component.stringifiedParams + "][0]");}()'
+                                    name: '__tab.component.name',
+                                    params: 'function(){return eval("[" + __tab.component.stringifiedParams + "][0]");}()'
                                 }
                             },
                             dataKBTesthookButton: 'tab'
-                        }))),
-                gen.if('tab.closable',
+                        })))),
+                gen.if('closable',
                     span({
                         class: styles.classes.tabButton,
                         dataBind: {
@@ -221,21 +228,23 @@ define([
     }
 
     function buildTabPanel() {
-        return gen.if('tab.active',
+        return gen.if('active',
             div({
                 dataBind: {
                     attr: {
-                        active: 'tab.active'
+                        active: 'active'
                     },
                     css: {
-                        in: 'tab.active',
-                        active: 'tab.active'
+                        in: 'active',
+                        active: 'active'
                     }
                 },
                 class: [styles.classes.tabPane, 'fade'],
                 role: 'tabpanel'
-            }, gen.if('tab.panel.component',
-                gen.with('$component.tabContext',
+            }, gen.if('panel.component',
+                gen.let({
+                    __panel: 'panel'
+                }, gen.with('$component.tabContext',
                     div({
                         style: {
                             flex: '1 1 0px',
@@ -244,12 +253,12 @@ define([
                         },
                         dataBind: {
                             component: {
-                                name: 'tab.panel.component.name',
-                                params: 'function(){return eval("[" + tab.panel.component.stringifiedParams + "][0]");}()'
+                                name: '__panel.component.name',
+                                params: 'function(){return eval("[" + __panel.component.stringifiedParams + "][0]");}()'
                             }
                         }
-                    })),
-                gen.if('tab.panel.content',
+                    }))),
+                gen.if('panel.content',
                     div({
                         style: {
                             flex: '1 1 0px',
@@ -257,7 +266,7 @@ define([
                             flexDirection: 'column'
                         },
                         dataBind: {
-                            html: 'tab.panel.content'
+                            html: 'panel.content'
                         }
                     }),
                     div('** NO CONTENT **')))));
@@ -384,8 +393,7 @@ define([
                         id: 'tabsetId'
                     },
                     foreach: {
-                        data: 'tabs',
-                        as: '"tab"'
+                        data: 'tabs'
                     }
                 },
                 role: 'tablist'
@@ -397,8 +405,7 @@ define([
                 },
                 dataBind: {
                     foreach: {
-                        data: 'tabs',
-                        as: '"tab"'
+                        data: 'tabs'
                     }
                 }
             },  buildTabPanel())
