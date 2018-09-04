@@ -125,7 +125,6 @@ define([
         }
 
         clearComponent() {
-            console.log('clearing component');
             this.component(null);
             this.embeddedComponentName(null);
         }
@@ -141,7 +140,6 @@ define([
                 // persistently on the node, we don't have any context for this
                 // animation end ... so if this was a close with open, the
                 // open message will have been set ...
-                console.log('panel animation end...');
                 if (this.openMessage) {
                     this.openComponent(this.openMessage);
                     this.openMessage = null;
