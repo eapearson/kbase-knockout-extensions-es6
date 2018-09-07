@@ -62,12 +62,12 @@ define([
                 display: 'flex',
                 flexDirection: 'row',
                 alignItems: 'center'
-            },
-            pseudo: {
-                hover: {
-                    backgroundColor: '#CCC',
-                    cursor: 'pointer'
-                }
+            }
+        },
+        rowOver: {
+            css: {
+                cursor: 'pointer',
+                backgroundColor: '#CCC'
             }
         },
         itemRowActive: {
@@ -89,7 +89,6 @@ define([
             flex: '0 0 0px',
             overflow: 'hidden',
             whiteSpace: 'nowrap',
-            // border: '1px silver solid',
             borderBottom: '1px #DDD solid',
             height: '35px',
             padding: '4px 4px',
@@ -263,7 +262,7 @@ define([
 
         doRowAction(data, event, row) {
             if (this.table.rowAction && row.mode !== 'inaccessible') {
-                this.table.rowAction(row.data);
+                this.table.rowAction(row);
             }
         }
 
@@ -331,7 +330,7 @@ define([
         }, {});
     }
 
-    function buildResultsHeader() {
+    function buildHeader() {
         return  div({
             class: styles.classes.headerRow,
             dataBind: {
@@ -609,7 +608,7 @@ define([
                 })));
     }
 
-    function buildResultsRows() {
+    function buildRows() {
         const rowClass = {};
         return div({
             dataBind: {
@@ -625,21 +624,30 @@ define([
                     foreach: {
                         data: '$component.columns',
                         as: '"column"'
+                        // noChildContext: 'false'
                     },
                     css: rowClass,
-                    click: '(d,e) => {$component.doRowAction.call($component, d, e, row)}'
+                    event: {
+                        click: '(d,e) => {$component.doRowAction.call($component, d, e, row)}',
+                        mouseover: '() => {row.over(true)}',
+                        mouseout: '() => {row.over(false)}'
+                    }
                 },
                 class: styles.classes.itemRow
             }, [
                 div({
                     dataBind: {
-                        style: 'column.rowStyle'
+                        style: 'column.rowStyle',
+                        class: 'row.over() && !column.noSelect ? "' + styles.classes.rowOver + '" : null'
                     },
                     class: [styles.classes.cell]
                 }, gen.if('row.mode === "inaccessible"',
                     buildEmptyCol(),
                     div({
-                        class: [styles.classes.innerCell]
+                        class: [styles.classes.innerCell],
+                        dataBind: {
+                            style: 'column.style'
+                        }
                     }, [
                         gen.if('column.action', [
                             gen.if('column.action.fn', buildActionFnCol()),
@@ -653,7 +661,7 @@ define([
                                         name: 'column.component',
                                         params: {
                                             field: 'row.data[column.name]',
-                                            row: 'row.data',
+                                            row: 'row',
                                             env: '$component.env'
                                         }
                                     }
@@ -727,7 +735,7 @@ define([
         return div({
             class: styles.classes.component
         }, [
-            buildResultsHeader(),
+            buildHeader(),
             div({
                 class: styles.classes.tableBody
             }, gen.switch('$component.state()', [
@@ -754,7 +762,7 @@ define([
                         }
                     }, [
                         buildLoading(),
-                        gen.if('$component.rows().length > 0', buildResultsRows())
+                        gen.if('$component.rows().length > 0', buildRows())
                     ]),
                 ]
             ]))
