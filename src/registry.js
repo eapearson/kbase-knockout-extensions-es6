@@ -1,10 +1,8 @@
 define([
     'knockout',
-    'moment',
     'uuid'
 ], function (
     ko,
-    moment,
     Uuid
 ) {
     'use strict';
@@ -59,6 +57,11 @@ define([
 
             if (component.stylesheet) {
                 this.installStylesheet(name, component.stylesheet);
+            }
+            if (component.stylesheets) {
+                component.stylesheets.forEach((sheet, index) => {
+                    this.installStylesheet(name + '_' + index, sheet);
+                });
             }
 
             return {
