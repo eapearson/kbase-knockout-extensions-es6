@@ -51,6 +51,24 @@ define([], function () {
         ];
     }
 
+    function koTemplateIf(expression, markup, elseMarkup) {
+        if (!elseMarkup) {
+            return  [
+                '<!-- ko template: {if: ' + expression + '} -->',
+                markup,
+                '<!-- /ko -->'
+            ];
+        }
+        return  [
+            '<!-- ko template: {if: ' + expression + '} -->',
+            markup,
+            '<!-- /ko -->',
+            '<!-- ko template: {ifnot: ' + expression + '} -->',
+            elseMarkup,
+            '<!-- /ko -->'
+        ];
+    }
+
     function koWhen(expression, markup) {
         return  [
             '<!-- ko when: ' + expression + ' -->',
@@ -212,6 +230,7 @@ define([], function () {
         component: koComponent,
         component2: koComponent2,
         when: koWhen,
-        ifWith: koIfWith
+        ifWith: koIfWith,
+        templateIf: koTemplateIf
     };
 });
