@@ -13,13 +13,6 @@ define([
 ) {
     'use strict';
 
-    const t = html.tag,
-        ul = t('ul'),
-        li = t('li'),
-        a = t('a'),
-        span = t('span'),
-        div = t('div');
-
     class viewModel extends ViewModelBase  {
         constructor(params) {
             super(params);
@@ -167,6 +160,13 @@ define([
             this.activateTab(tab);
         }
     }
+
+    const t = html.tag,
+        ul = t('ul'),
+        li = t('li'),
+        a = t('a'),
+        span = t('span'),
+        div = t('div');
 
     function buildTab() {
         return li({
