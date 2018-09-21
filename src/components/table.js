@@ -17,167 +17,11 @@ define([
 ) {
     'use strict';
 
-    const t = html.tag,
-        div = t('div'),
-        span = t('span'),
-        a = t('a');
-
-    const styles = html.makeStyles({
-        component: {
-            flex: '1 1 0px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'flex-start',
-            minWidth: '40em'
-        },
-        header: {
-            flex: '0 0 50px'
-        },
-        headerRow: {
-            flex: '0 0 35px',
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            fontWeight: 'bold',
-            color: 'gray'
-        },
-        tableBody: {
-            css: {
-                flex: '1 1 0px',
-                display: 'flex',
-                flexDirection: 'column'
-            }
-        },
-        itemRows: {
-            css: {
-                flex: '1 1 0px',
-                display: 'flex',
-                flexDirection: 'column',
-                position: 'relative'
-            }
-        },
-        itemRow: {
-            css: {
-                flex: '0 0 35px',
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center'
-            }
-        },
-        rowOver: {
-            css: {
-                cursor: 'pointer',
-                backgroundColor: '#CCC'
-            }
-        },
-        itemRowActive: {
-            backgroundColor: '#DDD'
-        },
-        searchLink: {
-            css: {
-                textDecoration: 'underline'
-            },
-            pseudo: {
-                hover: {
-                    textDecoration: 'underline',
-                    backgroundColor: '#EEE',
-                    cursor: 'pointer'
-                }
-            }
-        },
-        cell: {
-            flex: '0 0 0px',
-            overflow: 'hidden',
-            whiteSpace: 'nowrap',
-            borderBottom: '1px #DDD solid',
-            height: '35px',
-            padding: '4px 4px',
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center'
-        },
-        headerCell: {
-            css: {
-                flex: '0 0 0px',
-                overflow: 'hidden',
-                whiteSpace: 'nowrap',
-                // border: '1px silver solid',
-                borderTop: '1px #DDD solid',
-                borderBottom: '1px #DDD solid',
-                height: '35px',
-                padding: '4px',
-                textAlign: 'left',
-                display: 'flex',
-                alignItems: 'center'
-            }
-        },
-        innerCell: {
-            flex: '1 1 0px',
-            overflow: 'hidden',
-            whiteSpace: 'nowrap',
-            textOverflow: 'ellipsis'
-        },
-        innerSortCell: {
-            flex: '1 1 0px',
-            // overflow: 'hidden'
-            whiteSpace: 'nowrap',
-            display: 'flex',
-            flexDirection: 'row',
-            overflow: 'hidden'
-        },
-        sortableCell: {
-            css: {
-                cursor: 'pointer',
-            },
-            pseudo: {
-                hover: {
-                    backgroundColor: 'rgba(200,200,200,0.8)'
-                }
-            }
-        },
-        sortedCell: {
-            backgroundColor: 'rgba(200,200,200,0.5)'
-        },
-        sortIndicator: {
-            display: 'inline'
-        },
-        sectionHeader: {
-            padding: '4px',
-            fontWeight: 'bold',
-            color: '#FFF',
-            backgroundColor: '#888'
-        },
-        selected: {
-            backgroundColor: '#CCC'
-        },
-        private: {
-            backgroundColor: 'green'
-        },
-        miniButton: {
-            css: {
-                padding: '2px',
-                border: '2px transparent solid',
-                cursor: 'pointer'
-            },
-            pseudo: {
-                hover: {
-                    border: '2px white solid'
-                },
-                active: {
-                    border: '2px white solid',
-                    backgroundColor: '#555',
-                    color: '#FFF'
-                }
-            }
-        }
-    });
-
     class ViewModel extends ViewModelBase {
         constructor(params, _context, element) {
             super(params);
 
             const {table, messages} = params;
-
 
             this.element = element;
             this.slowLoadingThreshold = 300;
@@ -322,6 +166,161 @@ define([
 
     }
 
+    const t = html.tag,
+        div = t('div'),
+        span = t('span'),
+        a = t('a');
+
+    const styles = html.makeStyles({
+        component: {
+            flex: '1 1 0px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-start',
+            minWidth: '40em'
+        },
+        header: {
+            flex: '0 0 50px'
+        },
+        headerRow: {
+            flex: '0 0 35px',
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            fontWeight: 'bold',
+            color: 'gray'
+        },
+        tableBody: {
+            css: {
+                flex: '1 1 0px',
+                display: 'flex',
+                flexDirection: 'column'
+            }
+        },
+        itemRows: {
+            css: {
+                flex: '1 1 0px',
+                display: 'flex',
+                flexDirection: 'column',
+                position: 'relative'
+            }
+        },
+        itemRow: {
+            css: {
+                flex: '0 0 35px',
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center'
+            }
+        },
+        rowOver: {
+            css: {
+                cursor: 'pointer',
+                backgroundColor: '#CCC'
+            }
+        },
+        itemRowActive: {
+            backgroundColor: '#DDD'
+        },
+        searchLink: {
+            css: {
+                textDecoration: 'underline'
+            },
+            pseudo: {
+                hover: {
+                    textDecoration: 'underline',
+                    backgroundColor: '#EEE',
+                    cursor: 'pointer'
+                }
+            }
+        },
+        cell: {
+            flex: '0 0 0px',
+            overflow: 'hidden',
+            whiteSpace: 'nowrap',
+            borderBottom: '1px #DDD solid',
+            height: '35px',
+            padding: '4px 4px',
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center'
+        },
+        headerCell: {
+            css: {
+                flex: '0 0 0px',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
+                // border: '1px silver solid',
+                borderTop: '1px #DDD solid',
+                borderBottom: '1px #DDD solid',
+                height: '35px',
+                padding: '4px',
+                textAlign: 'left',
+                display: 'flex',
+                alignItems: 'center'
+            }
+        },
+        innerCell: {
+            flex: '1 1 0px',
+            overflow: 'hidden',
+            whiteSpace: 'nowrap',
+            textOverflow: 'ellipsis',
+            alignSelf: 'stretch'
+        },
+        innerSortCell: {
+            flex: '1 1 0px',
+            // overflow: 'hidden'
+            whiteSpace: 'nowrap',
+            display: 'flex',
+            flexDirection: 'row',
+            overflow: 'hidden'
+        },
+        sortableCell: {
+            css: {
+                cursor: 'pointer',
+            },
+            pseudo: {
+                hover: {
+                    backgroundColor: 'rgba(200,200,200,0.8)'
+                }
+            }
+        },
+        sortedCell: {
+            backgroundColor: 'rgba(200,200,200,0.5)'
+        },
+        sortIndicator: {
+            display: 'inline'
+        },
+        sectionHeader: {
+            padding: '4px',
+            fontWeight: 'bold',
+            color: '#FFF',
+            backgroundColor: '#888'
+        },
+        selected: {
+            backgroundColor: '#CCC'
+        },
+        private: {
+            backgroundColor: 'green'
+        },
+        miniButton: {
+            css: {
+                padding: '2px',
+                border: '2px transparent solid',
+                cursor: 'pointer'
+            },
+            pseudo: {
+                hover: {
+                    border: '2px white solid'
+                },
+                active: {
+                    border: '2px white solid',
+                    backgroundColor: '#555',
+                    color: '#FFF'
+                }
+            }
+        }
+    });
 
     function obj(aa) {
         return aa.reduce(function (acc, prop) {
