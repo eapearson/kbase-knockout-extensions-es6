@@ -267,8 +267,8 @@ define([
             textOverflow: 'ellipsis',
             alignSelf: 'stretch',
             display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center'
+            flexDirection: 'column',
+            justifyContent: 'center'
         },
         innerSortCell: {
             flex: '1 1 0px',
