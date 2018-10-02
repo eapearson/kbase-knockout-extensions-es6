@@ -657,22 +657,12 @@ define([
                             gen.if('column.action.link', buildActionLinkCol())
                         ],
                         gen.if('column.component',
-                            div({
-                                dataBind: {
-                                    component: {
-                                        name: 'column.component',
-                                        params: {
-                                            field: 'row.data[column.name]',
-                                            row: 'row',
-                                            env: '$component.env'
-                                        }
-                                    }
-                                    // text: 'column.component'
-                                },
-                                style: {
-                                    flex: '1 1 0px',
-                                    display: 'flex',
-                                    flexDirection: 'column'
+                            gen.component2({
+                                name: 'column.component',
+                                params: {
+                                    field: 'row.data[column.name]',
+                                    row: 'row',
+                                    env: '$component.env'
                                 }
                             }),
                             gen.if('row.data[column.name]', buildColValue())))
