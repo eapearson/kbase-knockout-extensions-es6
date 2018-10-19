@@ -15,17 +15,18 @@ define([
 
     ko.bindingHandlers.htmlMarkdown = {
         update: function (element, valueAccessor) {
-            element.innerHTML =  marked(valueAccessor());
+            const value = ko.unwrap(valueAccessor()) || '';
+            element.innerHTML =  marked(value);
         }
     };
 
     ko.bindingHandlers.markdown = {
         init: function (element, valueAccessor) {
-            const value = ko.unwrap(valueAccessor());
+            const value = ko.unwrap(valueAccessor()) || '';
             element.innerHTML = marked(value);
         },
         update: function (element, valueAccessor) {
-            const value = ko.unwrap(valueAccessor());
+            const value = ko.unwrap(valueAccessor()) || '';
             element.innerHTML = marked(value);
         }
     };
