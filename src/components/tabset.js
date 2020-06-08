@@ -24,6 +24,7 @@ define([
             this.tabs = ko.observableArray();
             this.tabClasses = ko.observableArray(['nav', 'nav-tabs']);
             this.activeTab = ko.observable();
+            this.tabsMap = new Map();
 
             // Bus -- ??!!
             // TODO: provide the bus on the top level of the params...
@@ -33,14 +34,17 @@ define([
             this.parentBus.on('select-tab', (message) => {
                 if (typeof message === 'number') {
                     this.doSelectTab(this.tabs()[message]);
+                } else {
+                    this.doSelectTab(this.tabsMap.get(message));
                 }
+
             });
 
             // Initialize Tabs
 
             if (tabs) {
                 tabs.forEach((tab) => {
-                    this.tabs.push(this.makeTab(tab));
+                    this.addTab(tab);
                 });
             }
 
@@ -137,6 +141,7 @@ define([
         addTab(tab, activate) {
             const newTab = this.makeTab(tab);
             this.tabs.push(newTab);
+            this.tabsMap.set(newTab.id, newTab);
             if (activate) {
                 this.deactivateCurrentTab();
                 this.activateTab(newTab);
