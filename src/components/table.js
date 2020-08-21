@@ -419,32 +419,44 @@ define([
                 }
             }),
             gen.if('row.data[column.name].url',
-                a({
-                    dataBind: {
-                        typedText: {
-                            value: 'row.data[column.name].value',
-                            type: 'column.type',
-                            format: 'column.format'
-                        },
-                        attr: {
-                            title: 'row.data[column.name].info'
-                        },
-                        click: 'function () {$component.doOpenUrl(row.data[column.name]);}',
-                        clickBubble: 'false'
-                    }
-                }),
-                span({
-                    dataBind: {
-                        typedText: {
-                            value: 'row.data[column.name].value',
-                            type: 'column.type',
-                            format: 'column.format'
-                        },
-                        attr: {
-                            title: 'row.data[column.name].info'
+                gen.if('typeof row.data[column.name].value === "undefined"',
+                    span({
+                        dataBind: {
+                            html: '$component.table.undefinedValue'
                         }
-                    }
-                })));
+                    }),
+                    a({
+                        dataBind: {
+                            typedText: {
+                                value: 'row.data[column.name].value',
+                                type: 'column.type',
+                                format: 'column.format'
+                            },
+                            attr: {
+                                title: 'row.data[column.name].info'
+                            },
+                            click: 'function () {$component.doOpenUrl(row.data[column.name]);}',
+                            clickBubble: 'false'
+                        }
+                    })),
+                gen.if('typeof row.data[column.name].value === "undefined"',
+                    span({
+                        dataBind: {
+                            html: '$component.table.undefinedValue'
+                        }
+                    }),
+                    span({
+                        dataBind: {
+                            typedText: {
+                                value: 'row.data[column.name].value',
+                                type: 'column.type',
+                                format: 'column.format'
+                            },
+                            attr: {
+                                title: 'row.data[column.name].info'
+                            }
+                        }
+                    }))));
     }
 
     function buildEmptyCol() {
