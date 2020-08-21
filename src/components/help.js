@@ -74,7 +74,8 @@ define([
             indexListItem: {
                 css: {
                     display: 'block',
-                    padding: '4px'
+                    padding: '4px',
+                    cursor: 'pointer'
                 }
             },
             indexListItemLink: {
