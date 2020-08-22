@@ -405,19 +405,25 @@ define([
 
     function buildColValue() {
         return gen.if('row.data[column.name].action',
-            span({
-                dataBind: {
-                    typedText: {
-                        value: 'row.data[column.name].value',
-                        type: 'column.type',
-                        format: 'column.format',
-                        click: '$component[rowl[column.name].action]'
-                    },
-                    attr: {
-                        title: 'row.data[column.name].info'
+            gen.if('typeof row.data[column.name].value === "undefined"',
+                span({
+                    dataBind: {
+                        html: '$component.table.undefinedValue'
                     }
-                }
-            }),
+                }),
+                span({
+                    dataBind: {
+                        typedText: {
+                            value: 'row.data[column.name].value',
+                            type: 'column.type',
+                            format: 'column.format',
+                            click: '$component[rowl[column.name].action]'
+                        },
+                        attr: {
+                            title: 'row.data[column.name].info'
+                        }
+                    }
+                })),
             gen.if('row.data[column.name].url',
                 gen.if('typeof row.data[column.name].value === "undefined"',
                     span({
@@ -471,23 +477,29 @@ define([
 
     function  buildActionFnCol() {
         return gen.if('row.data[column.name]',
-            a({
-                dataBind: {
-                    typedText: {
-                        value: 'row.data[column.name].value',
-                        type: 'column.type',
-                        format: 'column.format'
-                    },
-                    click: 'function () {column.action.fn(row.data[column.name], row);}',
-                    clickBubble: false,
-                    attr: {
-                        title: 'row.data[column.name].info'
+            gen.if('typeof row.data[column.name].value === "undefined"',
+                span({
+                    dataBind: {
+                        html: '$component.table.undefinedValue'
                     }
-                },
-                style: {
-                    cursor: 'pointer'
-                }
-            }),
+                }),
+                a({
+                    dataBind: {
+                        typedText: {
+                            value: 'row.data[column.name].value',
+                            type: 'column.type',
+                            format: 'column.format'
+                        },
+                        click: 'function () {column.action.fn(row.data[column.name], row);}',
+                        clickBubble: false,
+                        attr: {
+                            title: 'row.data[column.name].info'
+                        }
+                    },
+                    style: {
+                        cursor: 'pointer'
+                    }
+                })),
             gen.if('column.action.label',
                 a({
                     dataBind: {
@@ -517,23 +529,29 @@ define([
 
     function  buildActionNameCol() {
         return gen.if('row.data[column.name]',
-            a({
-                dataBind: {
-                    typedText: {
-                        value: 'row.data[column.name].value',
-                        type: 'column.type',
-                        format: 'column.format'
-                    },
-                    click: 'function () {$component.actions[column.action.name]({row: row, col: row.data[column.name]});}',
-                    clickBubble: false,
-                    attr: {
-                        title: 'row.data[column.name].info'
+            gen.if('typeof row.data[column.name].value === "undefined"',
+                span({
+                    dataBind: {
+                        html: '$component.table.undefinedValue'
                     }
-                },
-                style: {
-                    cursor: 'pointer'
-                }
-            }),
+                }),
+                a({
+                    dataBind: {
+                        typedText: {
+                            value: 'row.data[column.name].value',
+                            type: 'column.type',
+                            format: 'column.format'
+                        },
+                        click: 'function () {$component.actions[column.action.name]({row: row, col: row.data[column.name]});}',
+                        clickBubble: false,
+                        attr: {
+                            title: 'row.data[column.name].info'
+                        }
+                    },
+                    style: {
+                        cursor: 'pointer'
+                    }
+                })),
             gen.if('column.action.label',
                 a({
                     dataBind: {
@@ -561,36 +579,48 @@ define([
     function  buildActionLinkCol() {
         return gen.if('row.data[column.name]',
             gen.if('row.data[column.name].url',
-                a({
-                    dataBind: {
-                        typedText: {
-                            value: 'row.data[column.name].value',
-                            type: 'column.type',
-                            format: 'column.format'
-                        },
-                        click: 'function () {$component.openLink(row.data[column.name].url);}',
-                        // click: 'function () {column.action.fn(row[column.name], row);}',
-                        clickBubble: false,
-                        attr: {
-                            title: 'row.data[column.name].info'
+                gen.if('typeof row.data[column.name].value === "undefined"',
+                    span({
+                        dataBind: {
+                            html: '$component.table.undefinedValue'
                         }
-                    },
-                    style: {
-                        cursor: 'pointer'
-                    }
-                }),
-                span({
-                    dataBind: {
-                        typedText: {
-                            value: 'row.data[column.name].value',
-                            type: 'column.type',
-                            format: 'column.format'
+                    }),
+                    a({
+                        dataBind: {
+                            typedText: {
+                                value: 'row.data[column.name].value',
+                                type: 'column.type',
+                                format: 'column.format'
+                            },
+                            click: 'function () {$component.openLink(row.data[column.name].url);}',
+                            // click: 'function () {column.action.fn(row[column.name], row);}',
+                            clickBubble: false,
+                            attr: {
+                                title: 'row.data[column.name].info'
+                            }
                         },
-                        attr: {
-                            title: 'row.data[column.name].info'
+                        style: {
+                            cursor: 'pointer'
                         }
-                    }
-                })),
+                    })),
+                gen.if('typeof row.data[column.name].value === "undefined"',
+                    span({
+                        dataBind: {
+                            html: '$component.table.undefinedValue'
+                        }
+                    }),
+                    span({
+                        dataBind: {
+                            typedText: {
+                                value: 'row.data[column.name].value',
+                                type: 'column.type',
+                                format: 'column.format'
+                            },
+                            attr: {
+                                title: 'row.data[column.name].info'
+                            }
+                        }
+                    }))),
             // Case of a column definition containing a link, but no corresponding
             // row value. E.g. a per-row action.
 
