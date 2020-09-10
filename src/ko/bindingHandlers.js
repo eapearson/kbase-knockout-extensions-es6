@@ -390,7 +390,11 @@ define([
             case 'string':
             default:
                 valueUnwrapped = ko.unwrap(value.value);
-                formatted = valueUnwrapped;
+                if (valueUnwrapped === undefined || valueUnwrapped === null) {
+                    formatted = missing;
+                } else {
+                    formatted = valueUnwrapped;
+                }
             }
 
             element.innerText = formatted;
