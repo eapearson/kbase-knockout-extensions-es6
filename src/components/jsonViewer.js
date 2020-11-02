@@ -102,6 +102,8 @@ define([
         }
     }
 
+    const componentId = reg.genId();
+
     class ViewModel {
         constructor(params) {
             this.value = params.value;
@@ -180,7 +182,7 @@ define([
                             div({
                                 dataBind: {
                                     component: {
-                                        name: '"generic/json-viewer"',
+                                        name: '"'+componentId+'"',
                                         params: {
                                             key: 'key',
                                             value: 'value',
@@ -250,7 +252,7 @@ define([
                             div({
                                 dataBind: {
                                     component: {
-                                        name: '"generic/json-viewer"',
+                                        name: '"'+componentId+'"',
                                         params: {
                                             key: '"[" + $index() + "]"',
                                             value: '$data',
@@ -406,5 +408,5 @@ define([
         };
     }
 
-    return reg.registerComponent(component);
+    return reg.registerComponent(component, componentId);
 });
