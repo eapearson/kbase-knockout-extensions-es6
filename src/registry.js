@@ -29,8 +29,12 @@ define([
             this.installedStylesheets[id] = stylesheet;
         }
 
-        registerComponent(componentFactory) {
-            const name = new Uuid(4).format();
+        genId() {
+            return new Uuid(4).format();
+        }
+
+        registerComponent(componentFactory, id) {
+            const name = id || this.genId();
             const component = componentFactory();
 
             // wrap the view modei in a view model factory so we can always
